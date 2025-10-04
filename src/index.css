@@ -56,3 +56,28 @@
   background-color: rgba(255,255,255,0.07);
   color: #fff;
 }
+
+.navbar-brand{
+  align-items: center;
+  color: rgb(165, 73, 73);
+  font-size: xx-large;
+  cursor: pointer;  
+  text-decoration: none !important; 
+
+}
+
+.navbar-brand:hover {
+  color: rgb(165, 73, 73) !important;
+}
+
+.navbar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.logo{
+  width: 30px;
+  height: 30px
+}
+
+
+
