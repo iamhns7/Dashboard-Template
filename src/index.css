@@ -1,25 +1,58 @@
-
 .sidebar-custom {
   width: 250px;
-  height: 100vh;
-  padding: 15px;
-  background-color: #212529; 
-  color: white;
+  min-height: 100vh;
+  background-color: #212529;
+  transition: width 0.18s ease;
+  overflow: hidden;
+}
+
+.sidebar-custom.closed {
+  width: 75px; 
+  
+}
+.hamburger-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px; 
+}
+
+.hamburger-btn .line {
+  width: 20px;
+  height: 2px;
+  background-color: white; 
+  border-radius: 2px;
+}
+
+
+.sidebar-tittle{
+  padding-top: 6px;
+}
+
+.sidebar-custom.closed .label {
+  opacity: 0;
+  transform: translateX(-8px);
+  width: 0;
+  display: inline-block;
+  visibility: hidden;
+}
+
+
+.sidebar-custom .label {
+  transition: opacity .15s ease, transform .15s ease;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+
+.sidebar-custom hr {
+  border-color: white
 }
 
 .sidebar-custom .nav-link.active {
-  background-color: #5d9388d6; 
-  color: white;
-  transition: 0.6s;
-  transform: scale(1.01)
-}
-
-.sidebar-custom .nav-link.active:hover {
-  background-color: #3c8879d6; 
-}
-
-.sidebar-tittle{
-    text-align: center;
-    color:  #5bc5b0d6;
-    align-items: center;
+  background-color: rgba(255,255,255,0.07);
+  color: #fff;
 }
