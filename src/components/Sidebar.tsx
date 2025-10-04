@@ -6,12 +6,12 @@ const Sidebar = () => {
   const location = useLocation();
   const [open, setOpen] = useState(true);
 
-  const menuItems = [
-    { name: "Products", path: "/products" },
-    { name: "Carts", path: "/carts" },
-    { name: "Users", path: "/users" },
-    { name: "Auth", path: "/auth" }
-  ];
+const menuItems = [
+  { name: "Products", path: "/products", icon: "bi-box" },
+  { name: "Carts", path: "/carts", icon: "bi-cart" },
+  { name: "Users", path: "/users", icon: "bi-people" },
+  { name: "Auth", path: "/auth", icon: "bi-lock"}
+];
 
   return (
     <aside
@@ -40,14 +40,15 @@ const Sidebar = () => {
       <ul className="nav nav-pills flex-column mb-auto px-1">
         {menuItems.map((item) => (
           <li key={item.path} className="nav-item">
-            <Link
-              to={item.path}
-              className={`nav-link d-flex align-items-center ${
-                location.pathname === item.path ? "active" : "text-white"
-              }`}
-            >
-              <span className="label ms-1">{item.name}</span>
-            </Link>
+           <Link
+                to={item.path}
+                className={`nav-link d-flex align-items-center ${
+                  location.pathname === item.path ? "active" : "text-white"
+                }`}
+              >
+                <i className={`bi ${item.icon} me-2`}></i>  
+                <span className="label ms-1">{item.name}</span>
+              </Link>
           </li>
         ))}
       </ul>
