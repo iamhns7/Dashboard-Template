@@ -8,7 +8,7 @@ const Sidebar = () => {
 
 const menuItems = [
   { name: "Products", path: "/products", icon: "bi-box" },
-  { name: "Carts", path: "/carts", icon: "bi-cart" },
+  { name: "Cart", path: "/carts", icon: "bi-cart" },
   { name: "Users", path: "/users", icon: "bi-people" },
   { name: "Auth", path: "/auth", icon: "bi-lock"}
 ];
@@ -21,7 +21,7 @@ const menuItems = [
     >
       <div className="d-flex align-items-center justify-content-between mb-3 px-2">
         <span className="sidebar-tittle fs-5 text-white ms-1">
-          {open ? "Admin Panel" : ""}
+          {open ? "MyPanel" : ""}
         </span>
 
        <button
