@@ -8,12 +8,14 @@ import type { SidebarProps } from "../interfaces/SidebarInterfaces";
 
 
 const Sidebar: React.FC<SidebarProps> = ({ darkMode }) => {
-  const menuItems = [
-    { title: "Products", icon: "ri-store-2-line", path: "/" },
-    { title: "Carts", icon: "ri-shopping-cart-2-line", path: "/carts" },  
-    { title: "Users", icon: "ri-user-3-line", path: "/users" },
-    { title: "Auth", icon: "ri-lock-line", path: "/auth" },
-  ];
+ const menuItems = [
+  { title: "Dashboard", icon: "ri-dashboard-line", path: "/" },
+  { title: "Products", icon: "ri-shopping-bag-3-line", path: "/products" },
+  { title: "Carts", icon: "ri-shopping-cart-2-line", path: "/carts" },
+  { title: "Users", icon: "ri-user-3-line", path: "/users" },
+  { title: "Auth", icon: "ri-shield-user-line", path: "/auth" },
+];
+
 
   return (
     <div className={`leftside-menu ${darkMode ? "dark" : "light"}`}>
@@ -68,16 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({ darkMode }) => {
           ))}
         </ul>
 
-        {/* Help Box */}
-        <div className="help-box text-center d-none">
-          <button className="float-end close-btn">
-            <i className="mdi mdi-close" />
-          </button>
-          <img src="/assets/images/svg/help-icon.svg" height={90} alt="Helper Icon" />
-          <h5 className="mt-3">Unlimited Access</h5>
-          <p className="mb-3">Upgrade to plan to get access to unlimited reports</p>
-          <button className="btn btn-secondary btn-sm">Buy Now</button>
-        </div>
+      
       </div>
     </div>
   );

@@ -43,9 +43,7 @@ const Navbar = () => {
             </div>
           </li>
 
-          <li className="nav-link">
-            <span className="badge bg-success fs-16">v1.0</span>
-          </li>
+          
         </ul>
       </div>
     </div>
