@@ -5,6 +5,7 @@ import logoLightSm from "../assets/images/logo-sm.png";
 import logoDark from "../assets/images/logo-dark.png";
 import avatar from "../assets/images/users/avatar-1.jpg";
 import type { SidebarProps } from "../interfaces/SidebarInterfaces";
+import "../index.css"
 
 
 const Sidebar: React.FC<SidebarProps> = ({ darkMode }) => {

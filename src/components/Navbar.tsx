@@ -1,6 +1,7 @@
 import logoLight from "../assets/images/logo.png";
 import logoLightSm from "../assets/images/logo-sm.png";
 import logoDark from "../assets/images/logo-dark.png";
+import "../index.css"
 
 const Navbar = () => {
   return (
@@ -10,7 +11,7 @@ const Navbar = () => {
           {/* Topbar Brand Logo */}
           <div className="logo-topbar">
             {/* Logo light */}
-            <a href="/" className="logo-light">
+            <a href="/" className="logo-light ">
               <span className="logo-lg">
                 <img src={logoLight} alt="logo" />
               </span>
