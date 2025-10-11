@@ -1,27 +1,26 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 
 const DashboardLayout = () => {
-  return (
-    <div className="container-fluid">
-      <div className="row">
-        {/* Sidebar */}
-        <div className="col-auto p-0">
-          <Sidebar darkMode={false} />
-        </div>
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-        {/* Main content */}
-        <div className="col ps-md-0">
-          <Navbar />
-          <main className="p-4">
-            <Outlet />
-          </main>
-          <Footer />
-        </div>
-      </div>
-    </div>
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+
+  return (
+  <div className="dashboard-layout">
+  <Sidebar darkMode={false} isOpen={isSidebarOpen} />
+  <div className="main-content">
+    <Navbar onToggleSidebar={toggleSidebar} />
+    <main className="p-3">
+      <Outlet />
+    </main>
+    <Footer />
+  </div>
+</div>
+
   );
 };
 

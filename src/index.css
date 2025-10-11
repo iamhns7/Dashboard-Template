@@ -1,9 +1,157 @@
-.navbar-custom{
-    background-color: white !important;
+.navbar-custom {
+  width: 100%;
+  margin: 0;
+  padding: 0 1rem; /* istersen tamamen 0 yapabilirsin */
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  /* keep navbar positioned relative to its parent (.main-content)
+     so it doesn't extend behind the sidebar */
+  left: auto;
+  right: 0;
+  z-index: 1000;
 }
 
-.leftside-menu{
-    background-color: rgb(32, 40, 46) !important;
-    color: white;
+.main-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  min-width: 0; /* önemli: child overflow'un container'ı genişletmesini engeller */
+}
+
+/* Sidebar genel yapı */
+.sidebar {
+  flex: 0 0 250px; /* sabit genişlikli sidebar */
+  width: 250px;
+  background-color: #1e1e2f;
+  color: #fff;
+  min-height: 100vh;
+  transition: all 0.4s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Sidebar kapalı durumu */
+.sidebar.closed {
+  /* ikon-only görünüm: tamamen gizlemek yerine daralt */
+  flex: 0 0 70px; /* dar genişlik */
+  width: 70px;
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* Sidebar açık */
+.sidebar.open {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Sidebar iç elemanları */
+.sidebar-header {
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-menu ul {
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.sidebar-menu li {
+  padding: 0.75rem 1.5rem;
+}
+
+.sidebar-menu a {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+
+}
+
+/* collapsed (ikon-only) görünümde içeriği gizle, ikonları ortala */
+.sidebar.closed .sidebar-menu li {
+  padding: 0.6rem 0.25rem;
+}
+
+.sidebar.closed .sidebar-menu a {
+  justify-content: center;
+}
+
+.sidebar.closed .sidebar-menu a span {
+  display: none; /* başlıkları gizle */
+}
+
+.sidebar.closed .sidebar-header img {
+  max-width: 40px;
+  display: block;
+  margin: 0.75rem auto;
+}
+
+.sidebar .sidebar-menu a i {
+  font-size: 1.25rem;
+}
+
+/* hover'da tooltip yerine kullanıcıya yardımcı olmak için link title kullan */
+.sidebar-menu a[title]:hover::after {
+  /* tarayıcı tooltip'leri yeterli olacağından ekstra stil koymuyoruz */
+  content: none;
+}
+
+.sidebar-menu a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Footer kısmı */
+.sidebar-footer {
+  position: absolute;
+  bottom: 1rem;
+  left: 0;
+  width: 100%;
+}
+
+/* Burger button */
+.burger-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+  transition: transform 0.3s ease;
+}
+
+.burger-btn:hover {
+  transform: scale(1.1);
+}
+
+.dashboard-layout {
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+/* Override vendor/global rules that add extra horizontal margin to topbar/content
+   Use a more specific selector so these rules win without relying on !important. */
+.dashboard-layout .navbar-custom,
+.dashboard-layout .content-page,
+.dashboard-layout .footer,
+.dashboard-layout .footer .container-fluid {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* ana içeriğin scroll alanı ve navbar'ın kendi konteyneri içinde sticky kalması */
+.main-content > main {
+  flex: 1 1 auto;
+  overflow: auto;
 }
 
