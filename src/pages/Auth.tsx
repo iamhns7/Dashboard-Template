@@ -34,7 +34,7 @@ const Auth = () => {
         <form onSubmit={handleSubmit} noValidate>
           <div className="mb-3">
             <label htmlFor="email" className="form-label fw-semibold">
-              E-Mail
+              Email
             </label>
             <input
               type="email"

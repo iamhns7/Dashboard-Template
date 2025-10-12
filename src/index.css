@@ -1,7 +1,7 @@
 .navbar-custom {
   width: 100%;
   margin: 0;
-  padding: 0 1rem; /* istersen tamamen 0 yapabilirsin */
+  cursor: pointer;
   background-color: #ffffff !important;
   border-bottom: 1px solid #e5e5e5;
   display: flex;
@@ -9,8 +9,6 @@
   justify-content: space-between;
   position: sticky;
   top: 0;
-  /* keep navbar positioned relative to its parent (.main-content)
-     so it doesn't extend behind the sidebar */
   left: auto;
   right: 0;
   z-index: 1000;
@@ -22,34 +20,59 @@
   flex-direction: column;
   margin: 0;
   padding: 0;
-  min-width: 0; /* önemli: child overflow'un container'ı genişletmesini engeller */
+  min-width: 0; 
 }
 
-/* Sidebar genel yapı */
+
 .sidebar {
-  flex: 0 0 250px; /* sabit genişlikli sidebar */
+  flex: 0 0 250px; 
   width: 250px;
   background-color: #2b2b36;
   color: #fff;
-  min-height: 100vh;
+  height: 100vh;
   transition: all 0.4s ease;
   overflow: hidden;
-  position: relative;
+  position: fixed; 
+  top: 0;
+  left: 0;
+  z-index: 1050;
 }
 
 .sidebar-header img {
-  width: 180px;   /* istediğin boyutu yaz */
+  width: 180px;   
   height: auto;
 }
 
 
 .sidebar.closed {
- 
   flex: 0 0 70px;
   width: 70px;
   opacity: 1;
   transform: none;
   pointer-events: auto;
+}
+
+/* when sidebar is fixed, shift main content to the right so it doesn't sit under the sidebar */
+.main-content {
+  margin-left: 250px;
+}
+
+/* when sidebar is collapsed, reduce left margin */
+.sidebar.closed ~ .main-content {
+  margin-left: 70px;
+}
+
+/* responsive: on small screens don't fix sidebar (allow normal flow) */
+@media (max-width: 767.98px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+    flex: 0 0 auto;
+    height: auto;
+  }
+  .main-content {
+    margin-left: 0;
+  }
 }
 
 /* Sidebar açık */
@@ -169,5 +192,61 @@
 
 .dashboard-page-tittle{
   color: rgb(196, 77, 127);
+}
+
+/* Make footer a consistent height across all pages inside the dashboard layout
+   and reserve space at the bottom of main so footer never overlaps content. */
+:root {
+  --app-footer-height: 64px; /* değiştirerek tüm uygulama boyunca footer yüksekliğini ayarlayabilirsin */
+}
+
+.dashboard-layout .footer {
+  height: var(--app-footer-height) !important;
+  min-height: var(--app-footer-height) !important;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem !important;
+  box-sizing: border-box;
+}
+
+/* ensure main area leaves space for the footer */
+.dashboard-layout .main-content > main {
+  padding-bottom: calc(var(--app-footer-height) + 1rem) !important; /* biraz ekstra boşluk */
+}
+
+/* make footer content centered and stable */
+.dashboard-layout .footer .container-fluid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+/* For pages outside dashboard-layout (e.g., auth), if footer exists, apply same height */
+.footer {
+  height: var(--app-footer-height);
+  min-height: var(--app-footer-height);
+}
+
+/* Ensure dashboard covers full viewport and main-content layout pushes footer to bottom */
+.dashboard-layout {
+  min-height: 100vh;
+}
+
+.main-content {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content > main {
+  flex: 1 0 auto; /* allow main to grow and push footer down */
+}
+
+/* small screens: reset main-content margin if sidebar reflows */
+@media (max-width: 767.98px) {
+  .main-content {
+    min-height: auto;
+  }
 }
 

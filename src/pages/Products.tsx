@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   getProducts,
   createProduct,
@@ -11,8 +11,10 @@ const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [newProduct, setNewProduct] = useState<Product>({ title: "", price: 0 });
+  const [newProduct, setNewProduct] = useState<Product>({ title: "", price: 0, image: "" });
   const [editProduct, setEditProduct] = useState<Product | null>(null);
+  const addFileRef = useRef<HTMLInputElement | null>(null);
+  const editFileRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -34,11 +36,25 @@ const Products = () => {
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const added = await createProduct(newProduct);
-      setProducts([...products, added]);
-      setNewProduct({ title: "", price: 0 });
+      // Prepare payload: do not send base64 data URLs to server (they may reject large payloads)
+      const payload: Partial<Product> = {
+        title: newProduct.title,
+        price: newProduct.price,
+        description: newProduct.description,
+        category: newProduct.category,
+      };
+      if (newProduct.image && !newProduct.image.startsWith("data:")) {
+        payload.image = newProduct.image;
+      }
+
+      const added = await createProduct(payload as Product);
+      // Merge local image for UI if we omitted it from payload (e.g. data URL)
+      const finalAdded: Product = { ...(added as Product), image: added.image || newProduct.image };
+      setProducts([...products, finalAdded]);
+      setNewProduct({ title: "", price: 0, image: "" });
     } catch (error) {
       console.error("Error adding product:", error);
+      alert("Failed to create product. Check console for details.");
     }
   };
 
@@ -58,13 +74,24 @@ const Products = () => {
     e.preventDefault();
     if (!editProduct?.id) return;
     try {
-      const updated = await updateProduct(editProduct.id, editProduct);
-      setProducts(
-        products.map((p) => (p.id === updated.id ? updated : p))
-      );
+      // Prepare payload: avoid sending base64 data URLs
+      const payload: Partial<Product> = {
+        title: editProduct.title,
+        price: editProduct.price,
+        description: editProduct.description,
+        category: editProduct.category,
+      };
+      if (editProduct.image && !editProduct.image.startsWith("data:")) {
+        payload.image = editProduct.image;
+      }
+
+      const updated = await updateProduct(editProduct.id, payload as Product);
+      const finalUpdated: Product = { ...(updated as Product), image: updated.image || editProduct.image };
+      setProducts(products.map((p) => (p.id === finalUpdated.id ? finalUpdated : p)));
       setEditProduct(null);
     } catch (error) {
       console.error("Error updating product:", error);
+      alert("Failed to update product. Check console for details.");
     }
   };
 
@@ -102,7 +129,7 @@ const Products = () => {
       {/* ➕ Add Product Form */}
       <form onSubmit={handleAddProduct} className="mb-4">
         <div className="row g-2">
-          <div className="col-md-5">
+          <div className="col-md-4">
             <input
               type="text"
               className="form-control"
@@ -112,17 +139,51 @@ const Products = () => {
               required
             />
           </div>
-          <div className="col-md-3">
+          <div className="col-md-2">
             <input
               type="number"
               className="form-control"
               placeholder="Price"
               value={newProduct.price}
               onChange={(e) =>
-                setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })
+                setNewProduct({ ...newProduct, price: parseFloat(e.target.value || '0') })
               }
               required
             />
+          </div>
+          <div className="col-md-4">
+            <div className="input-group">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Image URL or choose file"
+                value={newProduct.image}
+                onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
+              />
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => addFileRef.current?.click()}
+                title="Choose file"
+              >
+                📁
+              </button>
+              <input
+                ref={addFileRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const file = e.target.files && e.target.files[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    setNewProduct({ ...newProduct, image: String(reader.result) });
+                  };
+                  reader.readAsDataURL(file);
+                }}
+              />
+            </div>
           </div>
           <div className="col-md-2">
             <button type="submit" className="btn btn-primary w-100">
@@ -137,12 +198,21 @@ const Products = () => {
         {products.map((product) => (
           <div key={product.id} className="col-md-3 mb-4">
             <div className="card h-100 text-center p-2">
-              <img
-                src={product.image}
-                alt={product.title}
-                className="card-img-top"
-                style={{ height: "200px", objectFit: "contain" }}
-              />
+              {product.image ? (
+                <img
+                  src={product.image}
+                  alt={product.title}
+                  className="card-img-top"
+                  style={{ height: "200px", objectFit: "contain" }}
+                />
+              ) : (
+                <div
+                  className="bg-light"
+                  style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <span className="text-muted">No image</span>
+                </div>
+              )}
               <div className="card-body">
                 <h5 className="card-title">{product.title}</h5>
                 <p className="card-text">${product.price}</p>
@@ -191,15 +261,49 @@ const Products = () => {
                   />
                   <input
                     type="number"
-                    className="form-control"
+                    className="form-control mb-3"
                     value={editProduct.price}
                     onChange={(e) =>
                       setEditProduct({
                         ...editProduct,
-                        price: parseFloat(e.target.value),
+                        price: parseFloat(e.target.value || '0'),
                       })
                     }
                   />
+                  <div className="input-group">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Image URL or choose file"
+                      value={editProduct.image ?? ""}
+                      onChange={(e) =>
+                        setEditProduct({ ...editProduct, image: e.target.value })
+                      }
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      onClick={() => editFileRef.current?.click()}
+                      title="Choose file"
+                    >
+                      📁
+                    </button>
+                    <input
+                      ref={editFileRef}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={(e) => {
+                        const file = e.target.files && e.target.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                          setEditProduct({ ...editProduct, image: String(reader.result) });
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                  </div>
                 </div>
                 <div className="modal-footer">
                   <button type="submit" className="btn btn-success">
