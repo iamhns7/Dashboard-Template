@@ -68,7 +68,32 @@ const Products = () => {
     }
   };
 
-  if (loading) return <p>Loading products...</p>;
+  if (loading)
+    return (
+      <div className="container mt-4">
+        <h2 className="mb-4">Products Management</h2>
+        <div className="row">
+          {Array.from({ length: 8 }).map((_, idx) => (
+            <div key={idx} className="col-md-3 mb-4">
+              <div className="card h-100 text-center p-2">
+                <div
+                  className="bg-secondary rounded"
+                  style={{ height: 200, opacity: 0.2 }}
+                ></div>
+                <div className="card-body">
+                  <div className="bg-secondary rounded mb-2" style={{ height: 18, width: '60%', margin: '8px auto', opacity: 0.2 }}></div>
+                  <div className="bg-secondary rounded mb-3" style={{ height: 14, width: '30%', margin: '8px auto', opacity: 0.2 }}></div>
+                  <div className="d-flex justify-content-center gap-2">
+                    <div className="bg-secondary rounded" style={{ width: 60, height: 30, opacity: 0.2 }}></div>
+                    <div className="bg-secondary rounded" style={{ width: 60, height: 30, opacity: 0.2 }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
 
   return (
     <div className="container mt-4">

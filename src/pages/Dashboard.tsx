@@ -1,7 +1,7 @@
 const Dashboard = () => {
     return (
         <>
-      <h1>👋🏻 Hi There; This is myPanel</h1> 
+      <h1 className="dashboard-page-tittle">👋🏻 Hi There; This is myPanel</h1> 
         </>
     )
 

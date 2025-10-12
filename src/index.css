@@ -154,9 +154,20 @@
   padding-right: 0 !important;
 }
 
+/* Make content pages size to their content inside our dashboard layout
+   instead of forcing min-height:100vh from vendor CSS. This removes
+   tall empty areas when pages don't need full viewport height. */
+.dashboard-layout .content-page {
+  min-height: auto !important;
+}
+
 /* ana içeriğin scroll alanı ve navbar'ın kendi konteyneri içinde sticky kalması */
 .main-content > main {
   flex: 1 1 auto;
   overflow: auto;
+}
+
+.dashboard-page-tittle{
+  color: rgb(196, 77, 127);
 }
 

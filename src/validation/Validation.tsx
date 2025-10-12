@@ -12,7 +12,7 @@ export const validateEmail = (email: string): string | undefined => {
 
 export const validatePassword = (password: string): string | undefined => {
   if (!password) return "Password is required";
-  if (password.length > 6) return "Please enter valide password";
+  if (password.length > 7) return "Please enter valide password";
   return undefined;
 };
 

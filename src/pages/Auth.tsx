@@ -25,7 +25,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
+  <div className="d-flex justify-content-center align-items-center py-5 bg-light">
       <div className="card shadow-lg p-4" style={{ width: "400px", borderRadius: "1rem" }}>
         <h3 className="text-center mb-4 fw-bold">Login</h3>
 
