@@ -2,22 +2,25 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../index.css";
+import useAuthValidation from "../validation/Validation";
 
 const Auth = () => {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const { values, setField, errors, validateAll } = useAuthValidation();
+  const [submitError, setSubmitError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-  
-    // basit doğrulama (örnek)
-    if (email === "iamhns7@gamil.com" && password === "iamhns7") {
-      navigate("/products");   
+    setSubmitError("");
+    const ok = validateAll();
+    if (!ok) return;
+
+    // gerçek projede burada server-side auth çağrısı olmalı
+    if (values.email === "iamhns7@gamil.com" && values.password === "iamhns7") {
+      navigate("/products");
     } else {
-      setError("Incorrect Email or Password!");
+      setSubmitError("Incorrect Email or Password!");
     }
   };
 
@@ -26,9 +29,9 @@ const Auth = () => {
       <div className="card shadow-lg p-4" style={{ width: "400px", borderRadius: "1rem" }}>
         <h3 className="text-center mb-4 fw-bold">Login</h3>
 
-        {error && <div className="alert alert-danger text-center py-2">{error}</div>}
+        {submitError && <div className="alert alert-danger text-center py-2">{submitError}</div>}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <div className="mb-3">
             <label htmlFor="email" className="form-label fw-semibold">
               E-Mail
@@ -36,12 +39,13 @@ const Auth = () => {
             <input
               type="email"
               id="email"
-              className="form-control"
+              className={`form-control ${errors.email ? "is-invalid" : ""}`}
               placeholder="example@mail.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={values.email}
+              onChange={(e) => setField("email", e.target.value)}
               required
             />
+            {errors.email && <div className="invalid-feedback">{errors.email}</div>}
           </div>
 
           <div className="mb-3">
@@ -51,12 +55,13 @@ const Auth = () => {
             <input
               type="password"
               id="password"
-              className="form-control"
+              className={`form-control ${errors.password ? "is-invalid" : ""}`}
               placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={values.password}
+              onChange={(e) => setField("password", e.target.value)}
               required
             />
+            {errors.password && <div className="invalid-feedback">{errors.password}</div>}
           </div>
 
           <button type="submit" className="btn btn-primary w-100 fw-semibold">
