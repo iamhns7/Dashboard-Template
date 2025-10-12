@@ -2,7 +2,7 @@
   width: 100%;
   margin: 0;
   padding: 0 1rem; /* istersen tamamen 0 yapabilirsin */
-  background-color: #ffffff;
+  background-color: #ffffff !important;
   border-bottom: 1px solid #e5e5e5;
   display: flex;
   align-items: center;
@@ -29,7 +29,7 @@
 .sidebar {
   flex: 0 0 250px; /* sabit genişlikli sidebar */
   width: 250px;
-  background-color: #1e1e2f;
+  background-color: #2b2b36;
   color: #fff;
   min-height: 100vh;
   transition: all 0.4s ease;
@@ -37,10 +37,15 @@
   position: relative;
 }
 
-/* Sidebar kapalı durumu */
+.sidebar-header img {
+  width: 180px;   /* istediğin boyutu yaz */
+  height: auto;
+}
+
+
 .sidebar.closed {
-  /* ikon-only görünüm: tamamen gizlemek yerine daralt */
-  flex: 0 0 70px; /* dar genişlik */
+ 
+  flex: 0 0 70px;
   width: 70px;
   opacity: 1;
   transform: none;
@@ -57,7 +62,7 @@
 .sidebar-header {
   padding: 1rem;
   text-align: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(29, 28, 28, 0.1);
 }
 
 .sidebar-menu ul {

@@ -12,11 +12,11 @@ const AppNavigation = () => {
   return (
     <Routes>
       <Route element={<DashboardLayout />}>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="dashboard" element={<Dashboard />} />
         <Route path="/products" element={<Products />} />
         <Route path="/carts" element={<Carts />} />
         <Route path="/users" element={<Users />} />
-        <Route path="/auth" element={<Auth />} />
+        <Route path="/" element={<Auth />} />
       
       </Route>
     </Routes>

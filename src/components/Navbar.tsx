@@ -5,7 +5,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
   return (
     <div className="navbar-custom d-flex align-items-center justify-content-between py-2">
       <div className="d-flex align-items-center gap-2">
-        <button className="burger-btn btn btn-light" onClick={onToggleSidebar}>
+        <button className="burger-btn  " onClick={onToggleSidebar}>
           <i className="ri-menu-2-line fs-4"></i>
         </button>
         
