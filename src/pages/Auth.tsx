@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../index.css";
 import useAuthValidation from "../validation/Validation";
+import { useAuth } from "../context/AuthContext";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const { values, setField, errors, validateAll } = useAuthValidation();
   const [submitError, setSubmitError] = useState("");
@@ -18,7 +20,9 @@ const Auth = () => {
 
     // gerçek projede burada server-side auth çağrısı olmalı
     if (values.email === "iamhns7@gamil.com" && values.password === "iamhns7") {
-      navigate("/products");
+      // Login başarılı
+      login();
+      navigate("/dashboard");
     } else {
       setSubmitError("Incorrect Email or Password!");
     }
@@ -27,7 +31,7 @@ const Auth = () => {
   return (
   <div className="d-flex justify-content-center align-items-center py-5 bg-light">
       <div className="card shadow-lg p-4" style={{ width: "400px", borderRadius: "1rem" }}>
-        <h3 className="text-center mb-4 fw-bold">Login</h3>
+        <h3 className="text-center mb-4 fw-bold">Admin Login</h3>
 
         {submitError && <div className="alert alert-danger text-center py-2">{submitError}</div>}
 
