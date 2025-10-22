@@ -184,14 +184,14 @@ const Carts = () => {
         <h2 className="mb-0">Shopping Carts</h2>
         <div className="btn-group" role="group">
           <button 
-            className={`btn btn-sm ${showMyCart ? 'btn-primary' : 'btn-outline-primary'}`}
+            className={`btn btn-sm ${showMyCart ? 'btn-outline-primary active' : 'btn-outline-primary'}`}
             onClick={() => setShowMyCart(true)}
           >
             <i className="ri-shopping-cart-2-line me-1"></i>
             My Cart
           </button>
           <button 
-            className={`btn btn-sm ${!showMyCart ? 'btn-primary' : 'btn-outline-primary'}`}
+            className={`btn btn-sm ${!showMyCart ? 'btn-outline-primary active' : 'btn-outline-primary'}`}
             onClick={() => setShowMyCart(false)}
           >
             <i className="ri-list-check me-1"></i>
@@ -306,7 +306,7 @@ const Carts = () => {
                             </td>
                             <td>
                               <button 
-                                className="btn btn-sm btn-danger"
+                                className="btn btn-sm btn-outline-primary"
                                 onClick={() => handleRemoveFromMyCart(item.productId)}
                               >
                                 <i className="ri-delete-bin-line"></i>
@@ -327,13 +327,13 @@ const Carts = () => {
                   </h4>
                   <div className="d-flex gap-2">
                     <button 
-                      className="btn btn-outline-danger"
+                      className="btn btn-outline-primary"
                       onClick={handleClearMyCart}
                     >
                       <i className="ri-delete-bin-line me-1"></i>
                       Clear Cart
                     </button>
-                    <button className="btn btn-success">
+                    <button className="btn btn-outline-primary">
                       <i className="ri-shopping-bag-line me-1"></i>
                       Checkout
                     </button>
@@ -362,7 +362,10 @@ const Carts = () => {
                         <small className="text-muted">User: {cart.userId} • {new Date(cart.date).toLocaleDateString()}</small>
                       </div>
                         <div>
-                        <button className="btn btn-sm btn-danger" onClick={() => handleDeleteCart(cart.id)}>Delete Cart</button>
+                        <button className="btn btn-sm btn-outline-primary" onClick={() => handleDeleteCart(cart.id)}>
+                          <i className="ri-delete-bin-line me-1"></i>
+                          Delete Cart
+                        </button>
                       </div>
                     </div>
 
@@ -384,7 +387,10 @@ const Carts = () => {
                                 <input type="text" className="form-control text-center" value={p.quantity} readOnly />
                                 <button className="btn btn-outline-secondary" type="button" onClick={() => handleChangeQuantity(cart.id, p.productId, 1)}>+</button>
                               </div>
-                              <button className="btn btn-sm btn-outline-danger" onClick={() => handleRemoveProduct(cart.id, p.productId)}>Remove</button>
+                              <button className="btn btn-sm btn-outline-primary" onClick={() => handleRemoveProduct(cart.id, p.productId)}>
+                                <i className="ri-delete-bin-line me-1"></i>
+                                Remove
+                              </button>
                             </div>
                           </li>
                         ))}
