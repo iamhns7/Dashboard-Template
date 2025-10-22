@@ -1,15 +1,43 @@
 import { useEffect, useState } from "react";
 import { getAllCarts, updateCart, deleteCart } from "../api/CartsApi";
+import { getProducts } from "../api/ProductsApi";
 import type { Cart } from "../interfaces/CartInterfaces";
+import type { Product } from "../interfaces/ProductInterfaces";
+import { useCart } from "../hooks/useCart";
 
 const Carts = () => {
   const [carts, setCarts] = useState<Cart[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showMyCart, setShowMyCart] = useState(true);
+  const [alertMessage, setAlertMessage] = useState<{ type: 'success' | 'danger', text: string } | null>(null);
+  
+  const { cart: myCart, updateQuantity, removeFromCart, clearCart } = useCart();
+
+  // Auto-hide alert after 3 seconds
+  useEffect(() => {
+    if (alertMessage) {
+      const timer = setTimeout(() => {
+        setAlertMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [alertMessage]);
 
   useEffect(() => {
     loadCarts();
+    loadProducts();
   }, []);
+
+  const loadProducts = async () => {
+    try {
+      const data = await getProducts();
+      setProducts(data);
+    } catch (err) {
+      console.error("Error loading products:", err);
+    }
+  };
 
   const loadCarts = async () => {
     setLoading(true);
@@ -61,6 +89,37 @@ const Carts = () => {
     }
   };
 
+  // My Cart handlers with notifications
+  const handleRemoveFromMyCart = (productId: number) => {
+    const product = products.find((p) => p.id === productId);
+    removeFromCart(productId);
+    setAlertMessage({ 
+      type: 'success', 
+      text: `✅ ${product?.title || 'Product'} removed from cart!` 
+    });
+  };
+
+  const handleClearMyCart = () => {
+    if (confirm("Are you sure you want to clear your entire cart?")) {
+      clearCart();
+      setAlertMessage({ 
+        type: 'success', 
+        text: '✅ Cart cleared successfully!' 
+      });
+    }
+  };
+
+  const handleUpdateMyCartQuantity = (productId: number, quantity: number) => {
+    updateQuantity(productId, quantity);
+    if (quantity === 0) {
+      const product = products.find((p) => p.id === productId);
+      setAlertMessage({ 
+        type: 'success', 
+        text: `✅ ${product?.title || 'Product'} removed from cart!` 
+      });
+    }
+  };
+
   const handleRemoveProduct = async (cartId: number, productId: number) => {
     if (!confirm("Are you sure you want to remove this product from your cart?")) return;
     const cart = carts.find((c) => c.id === cartId);
@@ -86,9 +145,11 @@ const Carts = () => {
 
     try {
       await deleteCart(cartId);
+      setAlertMessage({ type: 'success', text: '✅ Cart deleted successfully!' });
     } catch (err) {
       console.error("Error deleting cart:", err);
       setError("An error occurred while deleting the cart..");
+      setAlertMessage({ type: 'danger', text: '❌ Failed to delete cart!' });
       setCarts(carts);
     }
   };
@@ -119,67 +180,228 @@ const Carts = () => {
 
   return (
     <div className="container mt-4">
-      <h2>Carts</h2>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="mb-0">Shopping Carts</h2>
+        <div className="btn-group" role="group">
+          <button 
+            className={`btn btn-sm ${showMyCart ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => setShowMyCart(true)}
+          >
+            <i className="ri-shopping-cart-2-line me-1"></i>
+            My Cart
+          </button>
+          <button 
+            className={`btn btn-sm ${!showMyCart ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => setShowMyCart(false)}
+          >
+            <i className="ri-list-check me-1"></i>
+            All Carts
+          </button>
+        </div>
+      </div>
+
       {error && (
         <div className="alert alert-danger" role="alert">
           {error}
         </div>
       )}
 
-      {carts.length === 0 ? (
-        <div className="card p-4 text-center">
-          <h5>No carts yet.</h5>
-          <p className="text-muted">Carts that contain products will appear here.</p>
+      {/* Alert Message */}
+      {alertMessage && (
+        <div 
+          className={`alert alert-${alertMessage.type} alert-dismissible fade show`} 
+          role="alert"
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            zIndex: 9999,
+            minWidth: '300px',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+          }}
+        >
+          {alertMessage.text}
+          <button 
+            type="button" 
+            className="btn-close" 
+            onClick={() => setAlertMessage(null)}
+          ></button>
+        </div>
+      )}
+
+      {showMyCart ? (
+        // My Cart View
+        <div className="card shadow-sm">
+          <div className="card-body">
+            <h4 className="card-title mb-4">
+              <i className="ri-shopping-cart-2-line me-2"></i>
+              My Shopping Cart
+            </h4>
+            {!myCart || myCart.products.length === 0 ? (
+              <div className="text-center py-5">
+                <i className="ri-shopping-cart-line" style={{ fontSize: '4rem', color: '#ccc' }}></i>
+                <h5 className="mt-3">Your cart is empty</h5>
+                <p className="text-muted">Add products from the Products page!</p>
+              </div>
+            ) : (
+              <>
+                <div className="table-responsive">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Product</th>
+                        <th>Image</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {myCart.products.map((item) => {
+                        const product = products.find((p) => p.id === item.productId);
+                        return (
+                          <tr key={item.productId}>
+                            <td>
+                              <strong>{product?.title || `Product #${item.productId}`}</strong>
+                            </td>
+                            <td>
+                              {product?.image ? (
+                                <img 
+                                  src={product.image} 
+                                  alt={product.title}
+                                  style={{ width: '50px', height: '50px', objectFit: 'contain' }}
+                                />
+                              ) : (
+                                <div 
+                                  className="bg-light d-flex align-items-center justify-content-center"
+                                  style={{ width: '50px', height: '50px' }}
+                                >
+                                  <i className="ri-image-line text-muted"></i>
+                                </div>
+                              )}
+                            </td>
+                            <td>${product?.price?.toFixed(2) || '0.00'}</td>
+                            <td>
+                              <div className="btn-group btn-group-sm">
+                                <button 
+                                  className="btn btn-outline-secondary"
+                                  onClick={() => handleUpdateMyCartQuantity(item.productId, item.quantity - 1)}
+                                >
+                                  <i className="ri-subtract-line"></i>
+                                </button>
+                                <span className="btn btn-outline-secondary disabled">
+                                  {item.quantity}
+                                </span>
+                                <button 
+                                  className="btn btn-outline-secondary"
+                                  onClick={() => handleUpdateMyCartQuantity(item.productId, item.quantity + 1)}
+                                >
+                                  <i className="ri-add-line"></i>
+                                </button>
+                              </div>
+                            </td>
+                            <td>
+                              <strong>${((product?.price || 0) * item.quantity).toFixed(2)}</strong>
+                            </td>
+                            <td>
+                              <button 
+                                className="btn btn-sm btn-danger"
+                                onClick={() => handleRemoveFromMyCart(item.productId)}
+                              >
+                                <i className="ri-delete-bin-line"></i>
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                  <h4>
+                    Total: ${myCart.products.reduce((total, item) => {
+                      const product = products.find((p) => p.id === item.productId);
+                      return total + (product?.price || 0) * item.quantity;
+                    }, 0).toFixed(2)}
+                  </h4>
+                  <div className="d-flex gap-2">
+                    <button 
+                      className="btn btn-outline-danger"
+                      onClick={handleClearMyCart}
+                    >
+                      <i className="ri-delete-bin-line me-1"></i>
+                      Clear Cart
+                    </button>
+                    <button className="btn btn-success">
+                      <i className="ri-shopping-bag-line me-1"></i>
+                      Checkout
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       ) : (
-        <div className="row">
-          {carts.map((cart) => (
-            <div key={cart.id} className="col-md-6 mb-4">
-              <div className="card p-3 h-100 shadow-sm">
-                <div className="d-flex justify-content-between align-items-start">
-                    <div>
-                    <h5 className="mb-1">Cart #{cart.id}</h5>
-                    <small className="text-muted">User: {cart.userId} • {new Date(cart.date).toLocaleDateString()}</small>
-                  </div>
-                    <div>
-                    <button className="btn btn-sm btn-danger" onClick={() => handleDeleteCart(cart.id)}>Delete Cart</button>
-                  </div>
-                </div>
-
-                <hr />
-
-                {cart.products.length === 0 ? (
-                  <p className="text-muted">This cart is empty.</p>
-                ) : (
-                  <ul className="list-group list-group-flush">
-                    {cart.products.map((p) => (
-                      <li key={p.productId} className="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                          <div><strong>Product ID:</strong> {p.productId}</div>
-                          <div className="text-muted">Quantity: {p.quantity}</div>
-                        </div>
-                        <div className="d-flex align-items-center gap-2">
-                          <div className="input-group" style={{ width: 140 }}>
-                            <button className="btn btn-outline-secondary" type="button" onClick={() => handleChangeQuantity(cart.id, p.productId, -1)}>-</button>
-                            <input type="text" className="form-control text-center" value={p.quantity} readOnly />
-                            <button className="btn btn-outline-secondary" type="button" onClick={() => handleChangeQuantity(cart.id, p.productId, 1)}>+</button>
-                          </div>
-                          <button className="btn btn-sm btn-outline-danger" onClick={() => handleRemoveProduct(cart.id, p.productId)}>Remove</button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                <div className="mt-3 d-flex justify-content-between align-items-center">
-                  <div>
-                    <small className="text-muted">Total Items: {cart.products.reduce((s, x) => s + x.quantity, 0)}</small>
-                  </div>
-                </div>
-              </div>
+        // All Carts View (existing code)
+        <>
+          {carts.length === 0 ? (
+            <div className="card p-4 text-center">
+              <h5>No carts yet.</h5>
+              <p className="text-muted">Carts that contain products will appear here.</p>
             </div>
-          ))}
-        </div>
+          ) : (
+            <div className="row">
+              {carts.map((cart) => (
+                <div key={cart.id} className="col-md-6 mb-4">
+                  <div className="card p-3 h-100 shadow-sm">
+                    <div className="d-flex justify-content-between align-items-start">
+                        <div>
+                        <h5 className="mb-1">Cart #{cart.id}</h5>
+                        <small className="text-muted">User: {cart.userId} • {new Date(cart.date).toLocaleDateString()}</small>
+                      </div>
+                        <div>
+                        <button className="btn btn-sm btn-danger" onClick={() => handleDeleteCart(cart.id)}>Delete Cart</button>
+                      </div>
+                    </div>
+
+                    <hr />
+
+                    {cart.products.length === 0 ? (
+                      <p className="text-muted">This cart is empty.</p>
+                    ) : (
+                      <ul className="list-group list-group-flush">
+                        {cart.products.map((p) => (
+                          <li key={p.productId} className="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                              <div><strong>Product ID:</strong> {p.productId}</div>
+                              <div className="text-muted">Quantity: {p.quantity}</div>
+                            </div>
+                            <div className="d-flex align-items-center gap-2">
+                              <div className="input-group" style={{ width: 140 }}>
+                                <button className="btn btn-outline-secondary" type="button" onClick={() => handleChangeQuantity(cart.id, p.productId, -1)}>-</button>
+                                <input type="text" className="form-control text-center" value={p.quantity} readOnly />
+                                <button className="btn btn-outline-secondary" type="button" onClick={() => handleChangeQuantity(cart.id, p.productId, 1)}>+</button>
+                              </div>
+                              <button className="btn btn-sm btn-outline-danger" onClick={() => handleRemoveProduct(cart.id, p.productId)}>Remove</button>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    <div className="mt-3 d-flex justify-content-between align-items-center">
+                      <div>
+                        <small className="text-muted">Total Items: {cart.products.reduce((s, x) => s + x.quantity, 0)}</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

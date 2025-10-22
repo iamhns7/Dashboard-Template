@@ -3,9 +3,8 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import Dashboard from "../pages/Dashboard";
 import Products from "../pages/Products";
 import Carts from "../pages/Carts";
-import Users from "../pages/Users";
 import Auth from "../pages/Auth";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 const AppNavigation = () => {
   const { isAuthenticated } = useAuth();
@@ -23,7 +22,6 @@ const AppNavigation = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/products" element={<Products />} />
         <Route path="/carts" element={<Carts />} />
-        <Route path="/users" element={<Users />} />
       </Route>
 
       {/* Bilinmeyen rotalar için */}

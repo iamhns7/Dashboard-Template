@@ -6,6 +6,7 @@ import {
   deleteProduct,
 } from "../api/ProductsApi";
 import type { Product } from "../interfaces/ProductInterfaces";
+import { useCart } from "../hooks/useCart";
 
 const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -17,6 +18,8 @@ const Products = () => {
   const [alertMessage, setAlertMessage] = useState<{ type: 'success' | 'danger', text: string } | null>(null);
   const addFileRef = useRef<HTMLInputElement | null>(null);
   const editFileRef = useRef<HTMLInputElement | null>(null);
+  
+  const { addToCart } = useCart();
 
   // Auto-hide alert after 3 seconds
   useEffect(() => {
@@ -85,6 +88,14 @@ const Products = () => {
     }
   };
 
+  // 🛒 Add product to cart
+  const handleAddToCart = (product: Product) => {
+    if (product.id) {
+      addToCart(product.id, 1);
+      setAlertMessage({ type: 'success', text: `✅ ${product.title} added to cart!` });
+    }
+  };
+
   // ✅ Update product
   const handleUpdateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,7 +155,7 @@ const Products = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">Products Management</h2>
         <button 
-          className="btn btn-warning"
+          className="btn btn-outline-primary"
           onClick={() => setShowAddModal(true)}
         >
           <i className="ri-add-line me-2"></i>
@@ -179,7 +190,7 @@ const Products = () => {
       <div className="row">
         {products.map((product) => (
           <div key={product.id} className="col-md-3 mb-4">
-            <div className="card h-100 text-center p-2">
+            <div className="card h-100 text-center p-2 d-flex flex-column">
               {product.image ? (
                 <img
                   src={product.image}
@@ -195,22 +206,48 @@ const Products = () => {
                   <span className="text-muted">No image</span>
                 </div>
               )}
-              <div className="card-body">
-                <h5 className="card-title">{product.title}</h5>
-                <p className="card-text">${product.price}</p>
-                <div className="d-flex justify-content-center gap-2">
-                  <button
-                    className="btn btn-sm btn-warning"
-                    onClick={() => setEditProduct(product)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-sm btn-danger"
-                    onClick={() => handleDelete(product.id!)}
-                  >
-                    Delete
-                  </button>
+              <div className="card-body d-flex flex-column flex-grow-1">
+                <h5 className="card-title" style={{ 
+                  minHeight: '3rem',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical'
+                }}>
+                  {product.title}
+                </h5>
+                <p className="card-text mb-3">
+                  <strong className="text-success">${product.price}</strong>
+                </p>
+                
+                {/* Spacer to push buttons to bottom */}
+                <div className="mt-auto">
+                  <div className="d-flex flex-column gap-2">
+                    <button
+                      className="btn btn-sm btn-outline-primary w-100"
+                      onClick={() => handleAddToCart(product)}
+                    >
+                      <i className="ri-shopping-cart-line me-1"></i>
+                      Add to Cart
+                    </button>
+                    <div className="d-flex justify-content-center gap-2">
+                      <button
+                        className="btn btn-sm btn-outline-primary flex-fill"
+                        onClick={() => setEditProduct(product)}
+                      >
+                        <i className="ri-edit-line me-1"></i>
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-sm btn-outline-primary flex-fill"
+                        onClick={() => handleDelete(product.id!)}
+                      >
+                        <i className="ri-delete-bin-line me-1"></i>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
