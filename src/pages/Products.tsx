@@ -7,10 +7,15 @@ import {
 } from "../api/ProductsApi";
 import type { Product } from "../interfaces/ProductInterfaces";
 import { useCart } from "../hooks/useCart";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const Products = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: products = [], isLoading: loading } = useQuery<Product[], Error>({
+    queryKey: ['products'],
+    queryFn: getProducts,
+    staleTime: 1000 * 60, // keep for 1 minute
+  });
 
   const [newProduct, setNewProduct] = useState<Product>({ title: "", price: 0, image: "" });
   const [editProduct, setEditProduct] = useState<Product | null>(null);
@@ -31,21 +36,7 @@ const Products = () => {
     }
   }, [alertMessage]);
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  // ✅ Load all products
-  const fetchProducts = async () => {
-    try {
-      const data = await getProducts();
-      setProducts(data);
-    } catch (error) {
-      console.error("Error loading products:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // No manual fetch needed — react-query handles loading and caching.
 
   // ✅ Add new product
   const handleAddProduct = async (e: React.FormEvent) => {
@@ -62,10 +53,9 @@ const Products = () => {
         payload.image = newProduct.image;
       }
 
-      const added = await createProduct(payload as Product);
-      // Merge local image for UI if we omitted it from payload (e.g. data URL)
-      const finalAdded: Product = { ...(added as Product), image: added.image || newProduct.image };
-      setProducts([...products, finalAdded]);
+    await createProduct(payload as Product);
+    // Refresh products list from server/cache
+    await queryClient.invalidateQueries({ queryKey: ['products'] });
       setNewProduct({ title: "", price: 0, image: "" });
       setShowAddModal(false);
       setAlertMessage({ type: 'success', text: '✅ Product added successfully!' });
@@ -79,8 +69,8 @@ const Products = () => {
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
-      await deleteProduct(id);
-      setProducts(products.filter((p) => p.id !== id));
+  await deleteProduct(id);
+  await queryClient.invalidateQueries({ queryKey: ['products'] });
       setAlertMessage({ type: 'success', text: '✅ Product deleted successfully!' });
     } catch (error) {
       console.error("Error deleting product:", error);
@@ -112,9 +102,8 @@ const Products = () => {
         payload.image = editProduct.image;
       }
 
-      const updated = await updateProduct(editProduct.id, payload as Product);
-      const finalUpdated: Product = { ...(updated as Product), image: updated.image || editProduct.image };
-      setProducts(products.map((p) => (p.id === finalUpdated.id ? finalUpdated : p)));
+    await updateProduct(editProduct.id, payload as Product);
+    await queryClient.invalidateQueries({ queryKey: ['products'] });
       setEditProduct(null);
       setAlertMessage({ type: 'success', text: '✅ Product updated successfully!' });
     } catch (error) {
