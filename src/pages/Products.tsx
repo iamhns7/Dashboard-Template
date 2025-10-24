@@ -14,7 +14,7 @@ const Products = () => {
   const { data: products = [], isLoading: loading } = useQuery<Product[], Error>({
     queryKey: ['products'],
     queryFn: getProducts,
-    staleTime: 1000 * 60, // keep for 1 minute
+    //staleTime: 1000 * 60, // keep for 1 minute
   });
 
   const [newProduct, setNewProduct] = useState<Product>({ title: "", price: 0, image: "" });

@@ -8,8 +8,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const Carts = () => {
   const queryClient = useQueryClient();
-  const { data: products = [] } = useQuery<Product[], Error>({ queryKey: ['products'], queryFn: getProducts, staleTime: 1000 * 60 });
-  const { data: carts = [], isLoading: loading, error } = useQuery<Cart[], Error>({ queryKey: ['carts'], queryFn: getAllCarts, staleTime: 1000 * 60 });
+  const { data: products = [] } = useQuery<Product[], Error>({ queryKey: ['products'], queryFn: getProducts });
+  const { data: carts = [], isLoading: loading, error } = useQuery<Cart[], Error>({ queryKey: ['carts'], queryFn: getAllCarts});
   const [showMyCart, setShowMyCart] = useState(true);
   const [alertMessage, setAlertMessage] = useState<{ type: 'success' | 'danger', text: string } | null>(null);
   

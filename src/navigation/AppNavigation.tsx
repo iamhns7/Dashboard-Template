@@ -24,8 +24,6 @@ const AppNavigation = () => {
         <Route path="/carts" element={<Carts />} />
       </Route>
 
-      {/* Bilinmeyen rotalar için */}
-      <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/"} replace />} />
     </Routes>
   );
 };
