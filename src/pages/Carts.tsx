@@ -4,12 +4,12 @@ import { getProducts } from "../api/ProductsApi";
 import type { Cart } from "../interfaces/CartInterfaces";
 import type { Product } from "../interfaces/ProductInterfaces";
 import { useCart } from "../hooks/useCart";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const Carts = () => {
-  const [carts, setCarts] = useState<Cart[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const { data: products = [] } = useQuery<Product[], Error>({ queryKey: ['products'], queryFn: getProducts, staleTime: 1000 * 60 });
+  const { data: carts = [], isLoading: loading, error } = useQuery<Cart[], Error>({ queryKey: ['carts'], queryFn: getAllCarts, staleTime: 1000 * 60 });
   const [showMyCart, setShowMyCart] = useState(true);
   const [alertMessage, setAlertMessage] = useState<{ type: 'success' | 'danger', text: string } | null>(null);
   
@@ -25,33 +25,7 @@ const Carts = () => {
     }
   }, [alertMessage]);
 
-  useEffect(() => {
-    loadCarts();
-    loadProducts();
-  }, []);
-
-  const loadProducts = async () => {
-    try {
-      const data = await getProducts();
-      setProducts(data);
-    } catch (err) {
-      console.error("Error loading products:", err);
-    }
-  };
-
-  const loadCarts = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getAllCarts();
-      setCarts(data ?? []);
-    } catch (err) {
-      console.error("Error fetching carts:", err);
-      setError("Server error: failed to load carts.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // react-query provides carts & products; no manual load needed
 
   const handleChangeQuantity = async (
     cartId: number,
@@ -66,8 +40,9 @@ const Carts = () => {
 
     const newQuantity = Math.max(0, prod.quantity + delta);
 
-    // optimistic update
-    const updatedCarts = carts.map((c) =>
+    // optimistic update via react-query cache
+    const previous = queryClient.getQueryData<Cart[]>(['carts']);
+    const updatedCarts = (previous ?? carts).map((c) =>
       c.id === cartId
         ? {
             ...c,
@@ -77,15 +52,16 @@ const Carts = () => {
           }
         : c
     );
-    setCarts(updatedCarts);
+    queryClient.setQueryData(['carts'], updatedCarts);
 
     try {
-      await updateCart(cartId, { products: updatedCarts.find(c => c.id === cartId)!.products });
+      await updateCart(cartId, { products: updatedCarts.find((c) => c.id === cartId)!.products });
+      await queryClient.invalidateQueries({ queryKey: ['carts'] });
     } catch (err) {
       console.error("Error updating cart:", err);
-      setError("An error occurred during the update.");
+      setAlertMessage({ type: 'danger', text: '❌ Failed to update cart.' });
       // revert
-      setCarts(carts);
+      queryClient.setQueryData(['carts'], previous);
     }
   };
 
@@ -126,31 +102,34 @@ const Carts = () => {
     if (!cart) return;
 
     const updatedProducts = cart.products.filter((p) => p.productId !== productId);
-    const updatedCarts = carts.map((c) => (c.id === cartId ? { ...c, products: updatedProducts } : c));
-    setCarts(updatedCarts);
+    const previous = queryClient.getQueryData<Cart[]>(['carts']);
+    const updatedCarts = (previous ?? carts).map((c) => (c.id === cartId ? { ...c, products: updatedProducts } : c));
+    queryClient.setQueryData(['carts'], updatedCarts);
 
     try {
       await updateCart(cartId, { products: updatedProducts });
+      await queryClient.invalidateQueries({ queryKey: ['carts'] });
     } catch (err) {
       console.error("Error removing product from cart:", err);
-      setError("An error occurred while removing the product.");
-      setCarts(carts);
+      setAlertMessage({ type: 'danger', text: '❌ Failed to remove product.' });
+      queryClient.setQueryData(['carts'], previous);
     }
   };
 
   const handleDeleteCart = async (cartId: number) => {
     if (!confirm("Are you sure you want to delete this cart?")) return;
-    const remaining = carts.filter((c) => c.id !== cartId);
-    setCarts(remaining);
+    const previous = queryClient.getQueryData<Cart[]>(['carts']);
+    const remaining = (previous ?? carts).filter((c) => c.id !== cartId);
+    queryClient.setQueryData(['carts'], remaining);
 
     try {
       await deleteCart(cartId);
+      await queryClient.invalidateQueries({ queryKey: ['carts'] });
       setAlertMessage({ type: 'success', text: '✅ Cart deleted successfully!' });
     } catch (err) {
       console.error("Error deleting cart:", err);
-      setError("An error occurred while deleting the cart..");
       setAlertMessage({ type: 'danger', text: '❌ Failed to delete cart!' });
-      setCarts(carts);
+      queryClient.setQueryData(['carts'], previous);
     }
   };
 
@@ -202,7 +181,7 @@ const Carts = () => {
 
       {error && (
         <div className="alert alert-danger" role="alert">
-          {error}
+          {error instanceof Error ? error.message : String(error)}
         </div>
       )}
 
