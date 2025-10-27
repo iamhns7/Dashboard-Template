@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AuthErrors } from "../interfaces/ValidationInterfaces";
+import type { AuthErrors } from "../../interfaces/ValidationInterfaces";
 
 
 export const validateEmail = (email: string): string | undefined => {
@@ -24,8 +24,8 @@ export const useAuthValidation = (initial = { email: "", password: "" }) => {
   const setField = (field: "email" | "password", value: string) => {
     setValues((v) => ({ ...v, [field]: value }));
     // canlı doğrulama: hata varsa güncelle
-    if (field === "email") setErrors((e) => ({ ...e, email: validateEmail(value) }));
-    if (field === "password") setErrors((e) => ({ ...e, password: validatePassword(value) }));
+  if (field === "email") setErrors((e: AuthErrors) => ({ ...e, email: validateEmail(value) }));
+  if (field === "password") setErrors((e: AuthErrors) => ({ ...e, password: validatePassword(value) }));
   };
 
   const validateAll = (): boolean => {
