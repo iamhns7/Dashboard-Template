@@ -11,7 +11,19 @@
   top: 0;
   left: auto;
   right: 0;
-  z-index: 1000;
+  z-index: 1110; /* keep navbar above sidebar/backdrop so burger remains clickable on mobile */
+  overflow: visible;
+  min-height: 60px;
+}
+
+/* Mobile navbar: ensure it doesn't clip the burger button */
+@media (max-width: 767.98px) {
+  .navbar-custom {
+    min-height: 56px;
+    overflow: visible !important;
+    padding: 0.5rem 0.75rem;
+    padding-left: 3.2rem;
+  }
 }
 
 .main-content {
@@ -52,24 +64,64 @@
   pointer-events: auto;
 }
 
-/* when sidebar is fixed, shift main content to the right so it doesn't sit under the sidebar */
+/* Responsive main-content margins driven by viewport breakpoints.
+   This avoids layout gaps when resizing or rotating devices. */
+
+/* default (mobile-first) */
 .main-content {
-  margin-left: 250px;
+  margin-left: 0;
 }
 
-/* when sidebar is collapsed, reduce left margin */
-.sidebar.closed ~ .main-content {
-  margin-left: 70px;
+/* small/medium screens (>=576px) reserve space for a narrower sidebar */
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .main-content {
+    margin-left: 200px;
+  }
+  .sidebar.closed ~ .main-content {
+    margin-left: 70px;
+  }
 }
 
-/* responsive: on small screens don't fix sidebar (allow normal flow) */
+/* large screens (>=992px) reserve space for the full sidebar */
+@media (min-width: 992px) {
+  .main-content {
+    margin-left: 250px;
+  }
+  .sidebar.closed ~ .main-content {
+    margin-left: 70px;
+  }
+}
+
+/* responsive: on small screens turn sidebar into an off-canvas panel */
 @media (max-width: 767.98px) {
   .sidebar {
-    position: relative;
-    width: 100%;
-    flex: 0 0 auto;
-    height: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translateX(-100%); /* hidden by default */
+    width: 80%;
+    max-width: 320px;
+    height: 100vh;
+    overflow-y: auto;
+    transition: transform 0.28s ease;
+    z-index: 1060;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
   }
+
+  /* when opened, slide in */
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* backdrop element (rendered by React) */
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1040; /* ensure backdrop is below navbar and burger (higher z-index) */
+  }
+
+  /* ensure main content is full width underneath */
   .main-content {
     margin-left: 0;
   }
@@ -153,10 +205,22 @@
   cursor: pointer;
   color: #333;
   transition: transform 0.3s ease;
+  position: relative;
+  z-index: 1120; /* ensure the burger icon is above everything else */
+  display: inline-block;
+  padding: 0.35rem 0.45rem;
+  pointer-events: auto;
 }
 
 .burger-btn:hover {
   transform: scale(1.1);
+}
+
+/* Ensure burger button wrapper is not hidden */
+.d-flex.align-items-center.gap-2 {
+  position: relative;
+  z-index: 1000;
+  pointer-events: auto;
 }
 
 .dashboard-layout {
@@ -247,6 +311,108 @@
 @media (max-width: 767.98px) {
   .main-content {
     min-height: auto;
+  }
+}
+
+/* Additional responsive tweaks for small devices */
+@media (max-width: 575.98px) {
+  /* product cards: make images shorter and cards more compact */
+  .card-img-top {
+    height: 140px !important;
+    object-fit: contain;
+  }
+
+  .card .card-body {
+    padding: 0.75rem;
+  }
+
+  /* make action buttons full width for easier tapping */
+  .card .btn {
+    width: 100%;
+  }
+
+  /* reduce title size and spacing */
+  .card .card-title {
+    font-size: 0.95rem;
+    min-height: 2.5rem;
+  }
+
+  /* Navbar: compact heights and increase tap areas */
+  .navbar-custom {
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Sidebar: collapse into normal flow (already handled) but ensure it doesn't overlap */
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Tables: keep responsive wrapper but slightly reduce font-size */
+  .table-responsive .table {
+    font-size: 0.95rem;
+  }
+
+  /* Cart table buttons: make touch targets larger */
+  .btn-group .btn, .btn-sm {
+    padding: 0.5rem 0.6rem;
+  }
+}
+
+/* Make the burger fixed and always on top on small screens so it's never hidden
+   by overlays/backdrops from vendor CSS. This avoids tap problems on some phones. */
+@media (max-width: 767.98px) {
+  .burger-btn {
+    position: fixed !important;
+    left: 0.6rem !important;
+    top: 0.6rem !important;
+    z-index: 9999 !important; /* very high so it beats vendor offcanvas/backdrop */
+    background: rgba(255,255,255,0.95) !important;
+    border-radius: 6px !important;
+    padding: 0.35rem 0.45rem !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important;
+    pointer-events: auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    width: auto;
+    height: auto;
+  }
+
+  .burger-btn:hover {
+    transform: scale(1.1);
+  }
+
+  /* slightly nudge navbar to avoid overlap visual when burger is fixed */
+  .navbar-custom { 
+    padding-left: 3.2rem;
+  }
+
+  /* Ensure the navbar itself doesn't hide content on mobile */
+  .navbar-custom {
+    position: relative;
+    z-index: 1050;
+  }
+}
+
+/* Medium screens tweaks (>=576 and <768) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .card-img-top {
+    height: 170px !important;
+    object-fit: contain;
+  }
+
+  .card .card-title {
+    font-size: 1rem;
+  }
+
+  .sidebar {
+    width: 200px;
+  }
+
+  .main-content {
+    margin-left: 200px;
   }
 }
 

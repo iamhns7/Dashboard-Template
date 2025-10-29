@@ -6,9 +6,10 @@ import "../index.css";
 
 interface SidebarExtendedProps extends SidebarProps {
   isOpen: boolean;
+  onClose?: () => void;
 }
 
-const Sidebar: React.FC<SidebarExtendedProps> = ({  isOpen }) => {
+const Sidebar: React.FC<SidebarExtendedProps> = ({ isOpen, onClose }) => {
   const menuItems = [
     { title: "Dashboard", icon: "ri-dashboard-line", path: "/dashboard" },
     { title: "Products", icon: "ri-shopping-bag-3-line", path: "/products" },
@@ -16,7 +17,9 @@ const Sidebar: React.FC<SidebarExtendedProps> = ({  isOpen }) => {
   ];
 
   return (
-    <div className={`sidebar ${isOpen ? "open" : "closed"}`}>
+    <>
+      {isOpen && <div className="sidebar-backdrop" onClick={onClose} />}
+      <div className={`sidebar ${isOpen ? "open" : "closed"}`}>
       <div className="sidebar-header ">
         <img src={logoLight} alt="Logo" className="img-fluid" />
       </div>
@@ -36,6 +39,7 @@ const Sidebar: React.FC<SidebarExtendedProps> = ({  isOpen }) => {
 
       
     </div>
+    </>
   );
 };
 
