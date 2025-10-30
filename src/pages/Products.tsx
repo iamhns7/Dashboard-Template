@@ -5,6 +5,7 @@ import {
   updateProduct,
   deleteProduct,
 } from "../api/ProductsApi";
+import { updateCart } from "../api/CartsApi";
 import type { Product } from "../interfaces/ProductInterfaces";
 import { useCart } from "../hooks/useCart";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -21,6 +22,7 @@ const Products = () => {
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [alertMessage, setAlertMessage] = useState<{ type: 'success' | 'danger', text: string } | null>(null);
+  const [loadingCartId, setLoadingCartId] = useState<number | null>(null);
   const addFileRef = useRef<HTMLInputElement | null>(null);
   const editFileRef = useRef<HTMLInputElement | null>(null);
   
@@ -91,10 +93,28 @@ const Products = () => {
   };
 
   // 🛒 Add product to cart
-  const handleAddToCart = (product: Product) => {
-    if (product.id) {
+  const handleAddToCart = async (product: Product) => {
+    if (!product.id) return;
+    
+    try {
+      setLoadingCartId(product.id);
+      
+      // Call API to update cart with product
+      await updateCart(1, {
+        id: 1,
+        userId: 1,
+        date: new Date().toISOString(),
+        products: [{ productId: product.id, quantity: 1 }],
+      });
+      
+      // Update local context after API response
       addToCart(product.id, 1);
       setAlertMessage({ type: 'success', text: `✅ ${product.title} added to cart!` });
+    } catch (error) {
+      console.error("Add to cart error:", error);
+      setAlertMessage({ type: 'danger', text: '❌ Failed to add to cart!' });
+    } finally {
+      setLoadingCartId(null);
     }
   };
 
@@ -235,9 +255,23 @@ const Products = () => {
                     <button
                       className="btn btn-sm btn-outline-primary w-100"
                       onClick={() => handleAddToCart(product)}
+                      disabled={loadingCartId === product.id}
                     >
-                      <i className="ri-shopping-cart-line me-1"></i>
-                      Add to Cart
+                      {loadingCartId === product.id ? (
+                        <>
+                          <span 
+                            className="spinner-border spinner-border-sm me-2" 
+                            role="status" 
+                            aria-hidden="true"
+                          ></span>
+                          Adding...
+                        </>
+                      ) : (
+                        <>
+                          <i className="ri-shopping-cart-line me-1"></i>
+                          Add to Cart
+                        </>
+                      )}
                     </button>
                     <div className="d-flex justify-content-center gap-2">
                       <button
