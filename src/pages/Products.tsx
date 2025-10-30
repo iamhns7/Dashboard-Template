@@ -41,27 +41,33 @@ const Products = () => {
   // ✅ Add new product
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      // Prepare payload: do not send base64 data URLs to server (they may reject large payloads)
-      const payload: Partial<Product> = {
-        title: newProduct.title,
-        price: newProduct.price,
-        description: newProduct.description,
-        category: newProduct.category,
-      };
-      if (newProduct.image && !newProduct.image.startsWith("data:")) {
-        payload.image = newProduct.image;
-      }
+    if (!newProduct.title.trim() || newProduct.price <= 0) {
+      setAlertMessage({ type: 'danger', text: '❌ Please enter valid title and price!' });
+      return;
+    }
 
-    await createProduct(payload as Product);
-    // Refresh products list from server/cache
-    await queryClient.invalidateQueries({ queryKey: ['products'] });
+    try {
+      const payload: Partial<Product> = {
+        title: newProduct.title.trim(),
+        price: parseFloat(newProduct.price.toString()),
+        image: newProduct.image && newProduct.image.trim() ? newProduct.image.trim() : "https://via.placeholder.com/200?text=Product+Image",
+      };
+
+      // Sunucuya gönder
+      const createdProduct = await createProduct(payload as Product);
+      
+      // Cache'i güncelleyin - yeni ürünü hemen listeye ekleyin
+      queryClient.setQueryData(['products'], (oldData: Product[] | undefined) => {
+        if (!oldData) return [createdProduct];
+        return [...oldData, createdProduct];
+      });
+
       setNewProduct({ title: "", price: 0, image: "" });
       setShowAddModal(false);
       setAlertMessage({ type: 'success', text: '✅ Product added successfully!' });
     } catch (error) {
-      console.error("Error adding product:", error);
-      setAlertMessage({ type: 'danger', text: '❌ Failed to add product!' });
+      console.error("Product add error:", error);
+      setAlertMessage({ type: 'danger', text: '❌ Product could not be added!' });
     }
   };
 
@@ -69,12 +75,18 @@ const Products = () => {
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
-  await deleteProduct(id);
-  await queryClient.invalidateQueries({ queryKey: ['products'] });
+      await deleteProduct(id);
+
+      // Update cache - remove product from list
+      queryClient.setQueryData(['products'], (oldData: Product[] | undefined) => {
+        if (!oldData) return [];
+        return oldData.filter(p => p.id !== id);
+      });
+
       setAlertMessage({ type: 'success', text: '✅ Product deleted successfully!' });
     } catch (error) {
-      console.error("Error deleting product:", error);
-      setAlertMessage({ type: 'danger', text: '❌ Failed to delete product!' });
+      console.error("Product delete error:", error);
+      setAlertMessage({ type: 'danger', text: '❌ Product could not be deleted!' });
     }
   };
 
@@ -90,25 +102,41 @@ const Products = () => {
   const handleUpdateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editProduct?.id) return;
-    try {
-      // Prepare payload: avoid sending base64 data URLs
-      const payload: Partial<Product> = {
-        title: editProduct.title,
-        price: editProduct.price,
-        description: editProduct.description,
-        category: editProduct.category,
-      };
-      if (editProduct.image && !editProduct.image.startsWith("data:")) {
-        payload.image = editProduct.image;
-      }
+    if (!editProduct.title.trim() || editProduct.price <= 0) {
+      setAlertMessage({ type: 'danger', text: '❌ Please enter valid title and price!' });
+      return;
+    }
 
-    await updateProduct(editProduct.id, payload as Product);
-    await queryClient.invalidateQueries({ queryKey: ['products'] });
+    try {
+      const payload: Partial<Product> = {
+        title: editProduct.title.trim(),
+        price: parseFloat(editProduct.price.toString()),
+        image: editProduct.image && editProduct.image.trim() ? editProduct.image.trim() : "https://via.placeholder.com/200?text=Product+Image",
+      };
+
+      // API'ye gönder ve response'u al
+      const updatedProduct = await updateProduct(editProduct.id, payload as Product);
+      
+      // Debug: API response'unu kontrol et
+      console.log("API Response:", updatedProduct);
+      console.log("editProduct state:", editProduct);
+      
+      // Cache'i güncelleyin - mergesiz state ve response kullanın
+      const finalProduct = {
+        ...updatedProduct,
+        image: updatedProduct.image || editProduct.image || payload.image,
+      };
+      
+      queryClient.setQueryData(['products'], (oldData: Product[] | undefined) => {
+        if (!oldData) return [finalProduct];
+        return oldData.map(p => p.id === editProduct.id ? finalProduct : p);
+      });
+
       setEditProduct(null);
-      setAlertMessage({ type: 'success', text: '✅ Product updated successfully!' });
+      setAlertMessage({ type: 'success', text: '✅ The product has been updated successfully!' });
     } catch (error) {
-      console.error("Error updating product:", error);
-      setAlertMessage({ type: 'danger', text: '❌ Failed to update product!' });
+      console.error("Product update error:", error);
+      setAlertMessage({ type: 'danger', text: '❌ Product could not be updated!' });
     }
   };
 
@@ -180,21 +208,12 @@ const Products = () => {
         {products.map((product) => (
           <div key={product.id} className="col-md-3 mb-4">
             <div className="card h-100 text-center p-2 d-flex flex-column">
-              {product.image ? (
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  className="card-img-top"
-                  style={{ height: "200px", objectFit: "contain" }}
-                />
-              ) : (
-                <div
-                  className="bg-light"
-                  style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  <span className="text-muted">No image</span>
-                </div>
-              )}
+              <img
+                src={product.image || "https://via.placeholder.com/200?text=Product+Image"}
+                alt={product.title}
+                className="card-img-top"
+                style={{ height: "200px", objectFit: "contain" }}
+              />
               <div className="card-body d-flex flex-column flex-grow-1">
                 <h5 className="card-title" style={{ 
                   minHeight: '3rem',
@@ -290,23 +309,15 @@ const Products = () => {
                     />
                   </div>
                   <div className="mb-3">
-                    <label htmlFor="productImage" className="form-label">Image</label>
-                    <div className="input-group">
-                      <input
-                        id="productImage"
-                        type="text"
-                        className="form-control"
-                        placeholder="Image URL or choose file"
-                        value={newProduct.image}
-                        onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
-                      />
+                    <label className="form-label">Image</label>
+                    <div className="d-flex gap-2 align-items-center">
                       <button
                         type="button"
                         className="btn btn-outline-secondary"
                         onClick={() => addFileRef.current?.click()}
-                        title="Choose file"
                       >
-                        📁
+                        <i className="ri-upload-cloud-line me-2"></i>
+                        Upload Image
                       </button>
                       <input
                         ref={addFileRef}
@@ -316,20 +327,60 @@ const Products = () => {
                         onChange={(e) => {
                           const file = e.target.files && e.target.files[0];
                           if (!file) return;
+                          
+                          // Compress image before converting to base64
+                          const img = new Image();
+                          const canvas = document.createElement('canvas');
                           const reader = new FileReader();
-                          reader.onload = () => {
-                            setNewProduct({ ...newProduct, image: String(reader.result) });
+                          
+                          reader.onload = (event) => {
+                            img.onload = () => {
+                              // Resize to max 800x600
+                              const maxWidth = 800;
+                              const maxHeight = 600;
+                              let width = img.width;
+                              let height = img.height;
+                              
+                              if (width > height) {
+                                if (width > maxWidth) {
+                                  height = (height * maxWidth) / width;
+                                  width = maxWidth;
+                                }
+                              } else {
+                                if (height > maxHeight) {
+                                  width = (width * maxHeight) / height;
+                                  height = maxHeight;
+                                }
+                              }
+                              
+                              canvas.width = width;
+                              canvas.height = height;
+                              const ctx = canvas.getContext('2d');
+                              ctx?.drawImage(img, 0, 0, width, height);
+                              
+                              // Convert to base64 with compression
+                              const compressedImage = canvas.toDataURL('image/jpeg', 0.7);
+                              setNewProduct({ ...newProduct, image: compressedImage });
+                            };
+                            img.src = event.target?.result as string;
                           };
                           reader.readAsDataURL(file);
                         }}
                       />
+                      {newProduct.image && (
+                        <span className="text-success">
+                          <i className="ri-check-circle-line me-1"></i>
+                          Image selected
+                        </span>
+                      )}
                     </div>
                     {newProduct.image && (
                       <div className="mt-2">
+                        <small className="text-muted">Preview:</small>
                         <img 
                           src={newProduct.image} 
                           alt="Preview" 
-                          style={{ maxWidth: '100%', maxHeight: '200px', objectFit: 'contain' }}
+                          style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain', marginTop: '8px' }}
                           className="border rounded"
                         />
                       </div>
@@ -337,7 +388,11 @@ const Products = () => {
                   </div>
                 </div>
                 <div className="modal-footer">
-                  <button type="submit" className="btn btn-success">
+                  <button 
+                    type="submit" 
+                    className="btn btn-success"
+                    disabled={!newProduct.title.trim() || newProduct.price <= 0}
+                  >
                     <i className="ri-check-line me-1"></i>
                     Add Product
                   </button>
@@ -404,25 +459,15 @@ const Products = () => {
                     />
                   </div>
                   <div className="mb-3">
-                    <label htmlFor="editImage" className="form-label">Image</label>
-                    <div className="input-group">
-                      <input
-                        id="editImage"
-                        type="text"
-                        className="form-control"
-                        placeholder="Image URL or choose file"
-                        value={editProduct.image ?? ""}
-                        onChange={(e) =>
-                          setEditProduct({ ...editProduct, image: e.target.value })
-                        }
-                      />
+                    <label className="form-label">Image</label>
+                    <div className="d-flex gap-2 align-items-center">
                       <button
                         type="button"
                         className="btn btn-outline-secondary"
                         onClick={() => editFileRef.current?.click()}
-                        title="Choose file"
                       >
-                        📁
+                        <i className="ri-upload-cloud-line me-2"></i>
+                        Upload Image
                       </button>
                       <input
                         ref={editFileRef}
@@ -432,20 +477,60 @@ const Products = () => {
                         onChange={(e) => {
                           const file = e.target.files && e.target.files[0];
                           if (!file) return;
+                          
+                          // Compress image before converting to base64
+                          const img = new Image();
+                          const canvas = document.createElement('canvas');
                           const reader = new FileReader();
-                          reader.onload = () => {
-                            setEditProduct({ ...editProduct, image: String(reader.result) });
+                          
+                          reader.onload = (event) => {
+                            img.onload = () => {
+                              // Resize to max 800x600
+                              const maxWidth = 800;
+                              const maxHeight = 600;
+                              let width = img.width;
+                              let height = img.height;
+                              
+                              if (width > height) {
+                                if (width > maxWidth) {
+                                  height = (height * maxWidth) / width;
+                                  width = maxWidth;
+                                }
+                              } else {
+                                if (height > maxHeight) {
+                                  width = (width * maxHeight) / height;
+                                  height = maxHeight;
+                                }
+                              }
+                              
+                              canvas.width = width;
+                              canvas.height = height;
+                              const ctx = canvas.getContext('2d');
+                              ctx?.drawImage(img, 0, 0, width, height);
+                              
+                              // Convert to base64 with compression
+                              const compressedImage = canvas.toDataURL('image/jpeg', 0.7);
+                              setEditProduct({ ...editProduct, image: compressedImage });
+                            };
+                            img.src = event.target?.result as string;
                           };
                           reader.readAsDataURL(file);
                         }}
                       />
+                      {editProduct.image && (
+                        <span className="text-success">
+                          <i className="ri-check-circle-line me-1"></i>
+                          Image selected
+                        </span>
+                      )}
                     </div>
                     {editProduct.image && (
                       <div className="mt-2">
+                        <small className="text-muted">Preview:</small>
                         <img 
                           src={editProduct.image} 
                           alt="Preview" 
-                          style={{ maxWidth: '100%', maxHeight: '200px', objectFit: 'contain' }}
+                          style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain', marginTop: '8px' }}
                           className="border rounded"
                         />
                       </div>
@@ -453,7 +538,11 @@ const Products = () => {
                   </div>
                 </div>
                 <div className="modal-footer">
-                  <button type="submit" className="btn btn-success">
+                  <button 
+                    type="submit" 
+                    className="btn btn-success"
+                    disabled={!editProduct.title.trim() || editProduct.price <= 0}
+                  >
                     Save Changes
                   </button>
                   <button
