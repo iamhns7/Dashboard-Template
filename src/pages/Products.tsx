@@ -7,7 +7,7 @@ import {
 } from "../api/ProductsApi";
 import { updateCart } from "../api/CartsApi";
 import type { Product } from "../interfaces/ProductInterfaces";
-import { useCart } from "../hooks/useCart";
+import { useCart } from "../utils/hooks/useCart";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const Products = () => {
@@ -35,11 +35,17 @@ const Products = () => {
   const { data: products = [], isLoading: loading } = useQuery<Product[], Error>({
     queryKey: ['products'],
     queryFn: fetchProductsWithFallback,
+    // Use localStorage for a fast initial render but mark it as stale so
+    // the real network request runs on first mount (and will populate the cache).
     initialData: () => {
       const stored = localStorage.getItem('products');
       return stored ? JSON.parse(stored) : [];
     },
+    // Set updatedAt to 0 so initialData is considered stale and triggers fetch
+    // on the first mount. After fetch, cache will be fresh for `staleTime`.
+    initialDataUpdatedAt: 0,
     staleTime: 1000 * 60 * 10, // keep fresh for 10 minutes
+   
   });
 
   const [newProduct, setNewProduct] = useState<Product>({ title: "", price: 0, image: "" });

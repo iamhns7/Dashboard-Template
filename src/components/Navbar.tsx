@@ -1,7 +1,7 @@
 import "../index.css";
 import type { NavbarProps } from "../interfaces/NavbarInterfaces";
-import { useAuth } from "../hooks/useAuth";
-import { useCart } from "../hooks/useCart";
+import { useAuth } from "../utils/hooks/useAuth";
+import { useCart } from "../utils/hooks/useCart";
 import { useNavigate } from "react-router-dom";
 
 const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../index.css";
 import useAuthValidation from "../utils/validation/Validation";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../utils/hooks/useAuth";
 
 const Auth = () => {
   const navigate = useNavigate();
