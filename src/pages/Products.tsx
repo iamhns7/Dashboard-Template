@@ -12,10 +12,34 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const Products = () => {
   const queryClient = useQueryClient();
+  
+  // Fetch products from API, with localStorage fallback
+  const fetchProductsWithFallback = async () => {
+    try {
+      const apiProducts = await getProducts();
+      // If API returns data, save to localStorage and return
+      if (apiProducts && apiProducts.length > 0) {
+        localStorage.setItem('products', JSON.stringify(apiProducts));
+        return apiProducts;
+      }
+      // If API returns empty, try localStorage
+      const stored = localStorage.getItem('products');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      // If API fails, use localStorage
+      const stored = localStorage.getItem('products');
+      return stored ? JSON.parse(stored) : [];
+    }
+  };
+  
   const { data: products = [], isLoading: loading } = useQuery<Product[], Error>({
     queryKey: ['products'],
-    queryFn: getProducts,
-    //staleTime: 1000 * 60, // keep for 1 minute
+    queryFn: fetchProductsWithFallback,
+    initialData: () => {
+      const stored = localStorage.getItem('products');
+      return stored ? JSON.parse(stored) : [];
+    },
+    staleTime: 1000 * 60 * 10, // keep fresh for 10 minutes
   });
 
   const [newProduct, setNewProduct] = useState<Product>({ title: "", price: 0, image: "" });
@@ -55,14 +79,15 @@ const Products = () => {
         image: newProduct.image && newProduct.image.trim() ? newProduct.image.trim() : "https://via.placeholder.com/200?text=Product+Image",
       };
 
-      // Sunucuya gönder
+      // Send to server
       const createdProduct = await createProduct(payload as Product);
       
-      // Cache'i güncelleyin - yeni ürünü hemen listeye ekleyin
-      queryClient.setQueryData(['products'], (oldData: Product[] | undefined) => {
-        if (!oldData) return [createdProduct];
-        return [...oldData, createdProduct];
-      });
+      // Update cache AND localStorage
+      const oldData = queryClient.getQueryData(['products']) as Product[] | undefined;
+      const newData = oldData ? [...oldData, createdProduct] : [createdProduct];
+      
+      queryClient.setQueryData(['products'], newData);
+      localStorage.setItem('products', JSON.stringify(newData));
 
       setNewProduct({ title: "", price: 0, image: "" });
       setShowAddModal(false);
@@ -79,11 +104,12 @@ const Products = () => {
     try {
       await deleteProduct(id);
 
-      // Update cache - remove product from list
-      queryClient.setQueryData(['products'], (oldData: Product[] | undefined) => {
-        if (!oldData) return [];
-        return oldData.filter(p => p.id !== id);
-      });
+      // Update cache AND localStorage
+      const oldData = queryClient.getQueryData(['products']) as Product[] | undefined;
+      const newData = oldData ? oldData.filter(p => p.id !== id) : [];
+      
+      queryClient.setQueryData(['products'], newData);
+      localStorage.setItem('products', JSON.stringify(newData));
 
       setAlertMessage({ type: 'success', text: '✅ Product deleted successfully!' });
     } catch (error) {
@@ -137,20 +163,20 @@ const Products = () => {
       // API'ye gönder ve response'u al
       const updatedProduct = await updateProduct(editProduct.id, payload as Product);
       
-      // Debug: API response'unu kontrol et
-      console.log("API Response:", updatedProduct);
-      console.log("editProduct state:", editProduct);
-      
       // Cache'i güncelleyin - mergesiz state ve response kullanın
       const finalProduct = {
         ...updatedProduct,
         image: updatedProduct.image || editProduct.image || payload.image,
       };
       
-      queryClient.setQueryData(['products'], (oldData: Product[] | undefined) => {
-        if (!oldData) return [finalProduct];
-        return oldData.map(p => p.id === editProduct.id ? finalProduct : p);
-      });
+      // Update cache AND localStorage
+      const oldData = queryClient.getQueryData(['products']) as Product[] | undefined;
+      const newData = oldData 
+        ? oldData.map(p => p.id === editProduct.id ? finalProduct : p)
+        : [finalProduct];
+      
+      queryClient.setQueryData(['products'], newData);
+      localStorage.setItem('products', JSON.stringify(newData));
 
       setEditProduct(null);
       setAlertMessage({ type: 'success', text: '✅ The product has been updated successfully!' });
