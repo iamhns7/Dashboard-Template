@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import type AuthContextType from "../interfaces/UserInterfaces";
+import type AuthContextType from "../../interfaces/UserInterfaces";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);

@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import type { Cart } from "../interfaces/CartInterfaces";
+import type { Cart } from "../../interfaces/CartInterfaces";
 
 interface CartContextType {
   cart: Cart | null;
