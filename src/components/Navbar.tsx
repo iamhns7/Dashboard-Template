@@ -17,7 +17,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isOpen }) => {
   };
 
   return (
-    <nav className="navbar bg-white shadow-sm d-flex align-items-center justify-content-between py-2">
+    <nav className="navbar bg-white shadow-sm d-flex align-items-center justify-content-between py-3 px-4">
       <div className="d-flex align-items-center gap-2">
         <button 
           className="btn btn-sm btn-outline-secondary position-fixed top-0 m-2" 

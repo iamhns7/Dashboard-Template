@@ -27,7 +27,7 @@ const Sidebar: React.FC<SidebarExtendedProps> = ({ isOpen, onClose }) => {
       )}
 
       <aside 
-        className="bg-light border-end position-fixed top-0 start-0 h-100" 
+        className="bg-dark text-white position-fixed top-0 start-0 h-100" 
         style={{ 
           width: 250, 
           zIndex: 1050,
@@ -35,7 +35,7 @@ const Sidebar: React.FC<SidebarExtendedProps> = ({ isOpen, onClose }) => {
           transition: 'transform 0.3s ease'
         }}
       >
-        <div className="p-3 border-bottom d-flex align-items-center">
+        <div className="p-3 border-bottom border-secondary d-flex align-items-center">
           <img src={logoLight} alt="Logo" className="img-fluid" />
         </div>
 
@@ -46,7 +46,10 @@ const Sidebar: React.FC<SidebarExtendedProps> = ({ isOpen, onClose }) => {
                 <Link 
                   to={item.path} 
                   title={item.title} 
-                  className="nav-link d-flex align-items-center py-2"
+                  className="nav-link text-white d-flex align-items-center py-2 rounded"
+                  style={{ transition: 'background-color 0.2s' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   onClick={onClose}
                 >
                   <i className={`${item.icon} me-2`}></i>

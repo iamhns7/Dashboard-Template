@@ -1,40 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 
 const DashboardLayout = () => {
-  // initialize sidebar open state based on viewport width (mobile: closed)
-  const getInitialSidebar = () => {
-    try {
-      return window.innerWidth >= 768; // open on md and larger
-    } catch {
-      return true;
-    }
-  };
-
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(getInitialSidebar);
+  // initialize sidebar closed on all screens
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   const closeSidebar = () => setIsSidebarOpen(false);
 
-  // keep sidebar responsive to window resizes: auto-close on small screens
-  useEffect(() => {
-    const onResize = () => {
-      if (window.innerWidth < 768 && isSidebarOpen) setIsSidebarOpen(false);
-      if (window.innerWidth >= 768 && !isSidebarOpen) setIsSidebarOpen(true);
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [isSidebarOpen]);
-
   return (
-    <div className="container-fluid d-flex">
+    <div className="container-fluid d-flex min-vh-100">
       <Sidebar darkMode={false} isOpen={isSidebarOpen} onClose={closeSidebar} />
-      <div className="flex-grow-1">
+      <div className="d-flex flex-column flex-grow-1">
         <Navbar onToggleSidebar={toggleSidebar} isOpen={isSidebarOpen} />
-        <main className="p-3">
+        <main className="flex-grow-1 p-3">
           <Outlet />
         </main>
         <Footer />
