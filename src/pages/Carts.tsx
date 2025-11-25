@@ -188,16 +188,9 @@ const Carts = () => {
       {/* Alert Message */}
       {alertMessage && (
         <div 
-          className={`alert alert-${alertMessage.type} alert-dismissible fade show`} 
+          className={`alert alert-${alertMessage.type} alert-dismissible fade show position-fixed top-0 end-0 m-3 shadow`} 
           role="alert"
-          style={{
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            zIndex: 9999,
-            minWidth: '300px',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-          }}
+          style={{ zIndex: 9999, minWidth: '300px' }}
         >
           {alertMessage.text}
           <button 
@@ -218,7 +211,7 @@ const Carts = () => {
             </h4>
             {!myCart || myCart.products.length === 0 ? (
               <div className="text-center py-5">
-                <i className="ri-shopping-cart-line" style={{ fontSize: '4rem', color: '#ccc' }}></i>
+                <i className="ri-shopping-cart-line text-muted" style={{ fontSize: '4rem' }}></i>
                 <h5 className="mt-3">Your cart is empty</h5>
                 <p className="text-muted">Add products from the Products page!</p>
               </div>
@@ -249,7 +242,8 @@ const Carts = () => {
                                 <img 
                                   src={product.image} 
                                   alt={product.title}
-                                  style={{ width: '50px', height: '50px', objectFit: 'contain' }}
+                                  className="object-fit-contain"
+                                  style={{ width: '50px', height: '50px' }}
                                 />
                               ) : (
                                 <div 

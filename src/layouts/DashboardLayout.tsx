@@ -30,17 +30,16 @@ const DashboardLayout = () => {
   }, [isSidebarOpen]);
 
   return (
-  <div className="dashboard-layout">
-  <Sidebar darkMode={false} isOpen={isSidebarOpen} onClose={closeSidebar} />
-  <div className="main-content">
-    <Navbar onToggleSidebar={toggleSidebar} />
-    <main className="p-3">
-      <Outlet />
-    </main>
-    <Footer />
-  </div>
-</div>
-
+    <div className="container-fluid d-flex">
+      <Sidebar darkMode={false} isOpen={isSidebarOpen} onClose={closeSidebar} />
+      <div className="flex-grow-1">
+        <Navbar onToggleSidebar={toggleSidebar} isOpen={isSidebarOpen} />
+        <main className="p-3">
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
+    </div>
   );
 };
 

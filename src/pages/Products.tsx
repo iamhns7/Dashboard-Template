@@ -201,15 +201,15 @@ const Products = () => {
             <div key={idx} className="col-md-3 mb-4">
               <div className="card h-100 text-center p-2">
                 <div
-                  className="bg-secondary rounded"
-                  style={{ height: 200, opacity: 0.2 }}
+                  className="bg-secondary rounded opacity-25"
+                  style={{ height: 200 }}
                 ></div>
                 <div className="card-body">
-                  <div className="bg-secondary rounded mb-2" style={{ height: 18, width: '60%', margin: '8px auto', opacity: 0.2 }}></div>
-                  <div className="bg-secondary rounded mb-3" style={{ height: 14, width: '30%', margin: '8px auto', opacity: 0.2 }}></div>
+                  <div className="bg-secondary rounded mb-2 mx-auto opacity-25" style={{ height: 18, width: '60%' }}></div>
+                  <div className="bg-secondary rounded mb-3 mx-auto opacity-25" style={{ height: 14, width: '30%' }}></div>
                   <div className="d-flex justify-content-center gap-2">
-                    <div className="bg-secondary rounded" style={{ width: 60, height: 30, opacity: 0.2 }}></div>
-                    <div className="bg-secondary rounded" style={{ width: 60, height: 30, opacity: 0.2 }}></div>
+                    <div className="bg-secondary rounded opacity-25" style={{ width: 60, height: 30 }}></div>
+                    <div className="bg-secondary rounded opacity-25" style={{ width: 60, height: 30 }}></div>
                   </div>
                 </div>
               </div>
@@ -234,22 +234,15 @@ const Products = () => {
 
       {/* Alert Message */}
       {alertMessage && (
-        <div 
-          className={`alert alert-${alertMessage.type} alert-dismissible fade show`} 
+        <div
+          className={`alert alert-${alertMessage.type} alert-dismissible fade show position-fixed top-0 end-0 m-3 shadow`}
           role="alert"
-          style={{
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            zIndex: 9999,
-            minWidth: '300px',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-          }}
+          style={{ zIndex: 9999, minWidth: '300px' }}
         >
           {alertMessage.text}
-          <button 
-            type="button" 
-            className="btn-close" 
+          <button
+            type="button"
+            className="btn-close"
             onClick={() => setAlertMessage(null)}
           ></button>
         </div>
@@ -263,17 +256,16 @@ const Products = () => {
               <img
                 src={product.image || "https://via.placeholder.com/200?text=Product+Image"}
                 alt={product.title}
-                className="card-img-top"
-                style={{ height: "200px", objectFit: "contain" }}
+                className="card-img-top object-fit-contain"
+                style={{ height: "200px" }}
               />
               <div className="card-body d-flex flex-column flex-grow-1">
-                <h5 className="card-title" style={{ 
+                <h5 className="card-title text-truncate" style={{ 
                   minHeight: '3rem',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
                   display: '-webkit-box',
                   WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical'
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden'
                 }}>
                   {product.title}
                 </h5>
@@ -331,7 +323,7 @@ const Products = () => {
 
       {/* ➕ Add Product Modal */}
       {showAddModal && (
-        <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <div className="modal show d-block bg-dark bg-opacity-50 min-vh-100" tabIndex={-1}>
           <div className="modal-dialog">
             <div className="modal-content">
               <form onSubmit={handleAddProduct}>
@@ -446,8 +438,8 @@ const Products = () => {
                         <img 
                           src={newProduct.image} 
                           alt="Preview" 
-                          style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain', marginTop: '8px' }}
-                          className="border rounded"
+                          className="border rounded w-100 object-fit-contain mt-2"
+                          style={{ maxHeight: '150px' }}
                         />
                       </div>
                     )}
@@ -481,7 +473,7 @@ const Products = () => {
 
       {/* ✏️ Edit Product Modal */}
       {editProduct && (
-        <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <div className="modal show d-block bg-dark bg-opacity-50 min-vh-100" tabIndex={-1}>
           <div className="modal-dialog">
             <div className="modal-content">
               <form onSubmit={handleUpdateProduct}>
@@ -596,8 +588,8 @@ const Products = () => {
                         <img 
                           src={editProduct.image} 
                           alt="Preview" 
-                          style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain', marginTop: '8px' }}
-                          className="border rounded"
+                          className="border rounded w-100 object-fit-contain mt-2"
+                          style={{ maxHeight: '150px' }}
                         />
                       </div>
                     )}

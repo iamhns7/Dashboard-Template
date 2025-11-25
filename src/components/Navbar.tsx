@@ -4,7 +4,7 @@ import { useAuth } from "../utils/hooks/useAuth";
 import { useCart } from "../utils/hooks/useCart";
 import { useNavigate } from "react-router-dom";
 
-const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
+const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isOpen }) => {
   const { logout } = useAuth();
   const { getCartItemCount } = useCart();
   const navigate = useNavigate();
@@ -17,9 +17,18 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
   };
 
   return (
-    <div className="navbar-custom d-flex align-items-center justify-content-between py-2">
+    <nav className="navbar bg-white shadow-sm d-flex align-items-center justify-content-between py-2">
       <div className="d-flex align-items-center gap-2">
-        <button className="burger-btn" onClick={onToggleSidebar}>
+        <button 
+          className="btn btn-sm btn-outline-secondary position-fixed top-0 m-2" 
+          style={{ 
+            left: isOpen ? '260px' : '10px',
+            zIndex: 9999,
+            transition: 'left 0.3s ease'
+          }}
+          aria-label="Toggle sidebar" 
+          onClick={onToggleSidebar}
+        >
           <i className="ri-menu-2-line fs-4"></i>
         </button>
       </div>
@@ -44,7 +53,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
           Logout
         </button>
       </div>
-    </div>
+    </nav>
   );
 };
 

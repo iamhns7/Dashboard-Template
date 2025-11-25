@@ -1,11 +1,11 @@
 const Footer = () => {
   return (
-    <footer className="footer">
+    <footer className="bg-light py-3">
       <div className="container-fluid">
         <div className="row">
           <div className="col-md-6"></div>
           <div className="col-md-6">
-            <div className="text-md-end footer-links d-none d-md-block"></div>
+            <div className="text-md-end d-none d-md-block"></div>
           </div>
         </div>
       </div>
