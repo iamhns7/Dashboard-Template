@@ -4,13 +4,20 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../index.css";
 import useAuthValidation from "../utils/validation/Validation";
 import { useAuth } from "../utils/hooks/useAuth";
+import { useTranslation } from 'react-i18next';
 
 const Auth = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t, i18n } = useTranslation();
 
   const { values, setField, errors, validateAll } = useAuthValidation();
   const [submitError, setSubmitError] = useState("");
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem('language', lng);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,21 +31,37 @@ const Auth = () => {
       login();
       navigate("/dashboard");
     } else {
-      setSubmitError("Incorrect Email or Password!");
+      setSubmitError(t('auth.loginError'));
     }
   };
 
   return (
   <div className="d-flex justify-content-center align-items-center py-5 bg-light">
       <div className="card shadow-lg p-4" style={{ width: "400px", borderRadius: "1rem" }}>
-        <h3 className="text-center mb-4 fw-bold">Admin Login</h3>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h3 className="fw-bold mb-0">{t('auth.login')}</h3>
+          <div className="btn-group btn-group-sm">
+            <button 
+              className={`btn ${i18n.language === 'en' ? 'btn-primary' : 'btn-outline-primary'}`}
+              onClick={() => changeLanguage('en')}
+            >
+              EN
+            </button>
+            <button 
+              className={`btn ${i18n.language === 'tr' ? 'btn-primary' : 'btn-outline-primary'}`}
+              onClick={() => changeLanguage('tr')}
+            >
+              TR
+            </button>
+          </div>
+        </div>
 
         {submitError && <div className="alert alert-danger text-center py-2">{submitError}</div>}
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="mb-3">
             <label htmlFor="email" className="form-label fw-semibold">
-              Email
+              {t('auth.username')}
             </label>
             <input
               type="email"
@@ -54,13 +77,13 @@ const Auth = () => {
 
           <div className="mb-3">
             <label htmlFor="password" className="form-label fw-semibold">
-              Password
+              {t('auth.password')}
             </label>
             <input
               type="password"
               id="password"
               className={`form-control ${errors.password ? "is-invalid" : ""}`}
-              placeholder="Password"
+              placeholder={t('auth.password')}
               value={values.password}
               onChange={(e) => setField("password", e.target.value)}
               required
@@ -69,7 +92,7 @@ const Auth = () => {
           </div>
 
           <button type="submit" className="btn btn-primary w-100 fw-semibold">
-            Login
+            {t('auth.loginButton')}
           </button>
         </form>
 

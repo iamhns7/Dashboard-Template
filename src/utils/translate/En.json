@@ -50,9 +50,17 @@
     "myCart": "My Cart",
     "allCarts": "All Carts",
     "emptyCart": "Your cart is empty",
+    "noCarts": "No carts yet.",
+    "cartsDescription": "Carts that contain products will appear here.",
+    "cartEmpty": "This cart is empty.",
+    "cartNumber": "Cart #",
+    "user": "User",
+    "deleteCart": "Delete Cart",
+    "productId": "Product ID",
     "quantity": "Quantity",
     "price": "Price",
     "total": "Total",
+    "totalItems": "Total Items",
     "remove": "Remove",
     "removeConfirm": "Are you sure you want to remove this item from cart?",
     "cartTotal": "Cart Total",
@@ -64,7 +72,8 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "description": "Welcome to your dashboard"
+    "welcome": "👋🏻 Welcome to Dashboard",
+    "description": "Manage your products — add, update, or delete items, and view them in the cart section."
   },
   "auth": {
     "login": "Login",

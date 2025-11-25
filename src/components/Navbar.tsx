@@ -24,7 +24,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isOpen }) => {
   };
 
   return (
-    <nav className="navbar bg-white shadow-sm d-flex align-items-center justify-content-between py-3 px-4">
+    <nav className="navbar bg-dark text-white shadow-sm d-flex align-items-center justify-content-between py-3 px-4 position-sticky top-0" style={{ zIndex: 1030 }}>
       <div className="d-flex align-items-center gap-2">
         <button 
           className="btn btn-sm btn-outline-secondary position-fixed top-0 m-2" 
@@ -43,20 +43,20 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isOpen }) => {
       <div className="d-flex align-items-center gap-3">
         <div className="btn-group">
           <button 
-            className={`btn btn-sm ${i18n.language === 'en' ? 'btn-primary' : 'btn-outline-primary'}`}
+            className={`btn btn-sm ${i18n.language === 'en' ? 'btn-light' : 'btn-outline-light'}`}
             onClick={() => changeLanguage('en')}
           >
             EN
           </button>
           <button 
-            className={`btn btn-sm ${i18n.language === 'tr' ? 'btn-primary' : 'btn-outline-primary'}`}
+            className={`btn btn-sm ${i18n.language === 'tr' ? 'btn-light' : 'btn-outline-light'}`}
             onClick={() => changeLanguage('tr')}
           >
             TR
           </button>
         </div>
         <button 
-          className="btn btn-sm btn-outline-primary position-relative" 
+          className="btn btn-sm btn-outline-light position-relative" 
           onClick={() => navigate("/carts")}
         >
           <i className="ri-shopping-cart-2-line"></i>
@@ -69,7 +69,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isOpen }) => {
             </span>
           )}
         </button>
-        <button className="btn btn-sm btn-outline-danger" onClick={handleLogout}>
+        <button className="btn btn-sm btn-outline-light" onClick={handleLogout}>
           <i className="ri-logout-box-r-line me-1"></i>
           {t('navbar.logout')}
         </button>

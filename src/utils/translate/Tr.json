@@ -50,9 +50,17 @@
     "myCart": "Sepetim",
     "allCarts": "Tüm Sepetler",
     "emptyCart": "Sepetiniz boş",
+    "noCarts": "Henüz sepet yok.",
+    "cartsDescription": "Ürün içeren sepetler burada görünecek.",
+    "cartEmpty": "Bu sepet boş.",
+    "cartNumber": "Sepet #",
+    "user": "Kullanıcı",
+    "deleteCart": "Sepeti Sil",
+    "productId": "Ürün ID",
     "quantity": "Miktar",
     "price": "Fiyat",
     "total": "Toplam",
+    "totalItems": "Toplam Ürün",
     "remove": "Kaldır",
     "removeConfirm": "Bu ürünü sepetten çıkarmak istediğinizden emin misiniz?",
     "cartTotal": "Sepet Toplamı",
@@ -64,7 +72,8 @@
   },
   "dashboard": {
     "title": "Gösterge Paneli",
-    "description": "Gösterge panelinize hoş geldiniz"
+    "welcome": "👋🏻 Gösterge Paneline Hoş Geldiniz",
+    "description": "Ürünlerinizi yönetin — ürün ekleyin, güncelleyin veya silin ve sepet bölümünde görüntüleyin."
   },
   "auth": {
     "login": "Giriş Yap",

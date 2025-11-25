@@ -1,8 +1,12 @@
+import { useTranslation } from 'react-i18next';
+
 const Dashboard = () => {
+  const { t } = useTranslation();
+  
   return (
     <>
-      <h1 className="h3 mb-3">👋🏻 Welcome to Dashboard</h1>
-      <p className="lead text-muted">Manage your products — add, update, or delete items, and view them in the cart section.</p>
+      <h1 className="h3 mb-3">{t('dashboard.welcome')}</h1>
+      <p className="lead text-muted">{t('dashboard.description')}</p>
     </>
   );
 };

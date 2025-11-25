@@ -321,8 +321,8 @@ const Carts = () => {
         <>
           {carts.length === 0 ? (
             <div className="card p-4 text-center">
-              <h5>No carts yet.</h5>
-              <p className="text-muted">Carts that contain products will appear here.</p>
+              <h5>{t('carts.noCarts')}</h5>
+              <p className="text-muted">{t('carts.cartsDescription')}</p>
             </div>
           ) : (
             <div className="row">
@@ -331,13 +331,13 @@ const Carts = () => {
                   <div className="card p-3 h-100 shadow-sm">
                     <div className="d-flex justify-content-between align-items-start">
                         <div>
-                        <h5 className="mb-1">Cart #{cart.id}</h5>
-                        <small className="text-muted">User: {cart.userId} • {new Date(cart.date).toLocaleDateString()}</small>
+                        <h5 className="mb-1">{t('carts.cartNumber')}{cart.id}</h5>
+                        <small className="text-muted">{t('carts.user')}: {cart.userId} • {new Date(cart.date).toLocaleDateString()}</small>
                       </div>
                         <div>
                         <button className="btn btn-sm btn-outline-primary" onClick={() => handleDeleteCart(cart.id)}>
                           <i className="ri-delete-bin-line me-1"></i>
-                          Delete Cart
+                          {t('carts.deleteCart')}
                         </button>
                       </div>
                     </div>
@@ -345,14 +345,14 @@ const Carts = () => {
                     <hr />
 
                     {cart.products.length === 0 ? (
-                      <p className="text-muted">This cart is empty.</p>
+                      <p className="text-muted">{t('carts.cartEmpty')}</p>
                     ) : (
                       <ul className="list-group list-group-flush">
                         {cart.products.map((p) => (
                           <li key={p.productId} className="list-group-item d-flex justify-content-between align-items-center">
                             <div>
-                              <div><strong>Product ID:</strong> {p.productId}</div>
-                              <div className="text-muted">Quantity: {p.quantity}</div>
+                              <div><strong>{t('carts.productId')}:</strong> {p.productId}</div>
+                              <div className="text-muted">{t('carts.quantity')}: {p.quantity}</div>
                             </div>
                             <div className="d-flex align-items-center gap-2">
                               <div className="input-group" style={{ width: 140 }}>
@@ -362,7 +362,7 @@ const Carts = () => {
                               </div>
                               <button className="btn btn-sm btn-outline-primary" onClick={() => handleRemoveProduct(cart.id, p.productId)}>
                                 <i className="ri-delete-bin-line me-1"></i>
-                                Remove
+                                {t('carts.remove')}
                               </button>
                             </div>
                           </li>
@@ -372,7 +372,7 @@ const Carts = () => {
 
                     <div className="mt-3 d-flex justify-content-between align-items-center">
                       <div>
-                        <small className="text-muted">Total Items: {cart.products.reduce((s, x) => s + x.quantity, 0)}</small>
+                        <small className="text-muted">{t('carts.totalItems')}: {cart.products.reduce((s, x) => s + x.quantity, 0)}</small>
                       </div>
                     </div>
                   </div>

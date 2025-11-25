@@ -12,15 +12,15 @@ const DashboardLayout = () => {
   const closeSidebar = () => setIsSidebarOpen(false);
 
   return (
-    <div className="container-fluid d-flex min-vh-100">
-      <Sidebar darkMode={false} isOpen={isSidebarOpen} onClose={closeSidebar} />
-      <div className="d-flex flex-column flex-grow-1">
-        <Navbar onToggleSidebar={toggleSidebar} isOpen={isSidebarOpen} />
+    <div className="d-flex flex-column min-vh-100">
+      <Navbar onToggleSidebar={toggleSidebar} isOpen={isSidebarOpen} />
+      <div className="d-flex flex-grow-1">
+        <Sidebar darkMode={false} isOpen={isSidebarOpen} onClose={closeSidebar} />
         <main className="flex-grow-1 p-3">
           <Outlet />
         </main>
-        <Footer />
       </div>
+      <Footer />
     </div>
   );
 };

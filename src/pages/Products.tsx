@@ -15,35 +15,62 @@ const Products = () => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   
-  // Fetch products - prioritize localStorage to preserve local changes
+  // Fetch products - always call API but preserve local edits
   const fetchProductsWithFallback = async () => {
     // Show loading for at least 500ms
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Always check localStorage first
-    const stored = localStorage.getItem('products');
-    
-    // If localStorage has data, use it (preserves local edits)
-    if (stored) {
-      try {
-        const localProducts = JSON.parse(stored);
-        if (localProducts && localProducts.length > 0) {
-          return localProducts;
-        }
-      } catch {
-        // If parse fails, continue to API
-      }
-    }
-    
-    // Only fetch from API if localStorage is empty (first time)
     try {
+      // Always call API (visible in Network tab)
       const apiProducts = await getProducts();
+      
       if (apiProducts && apiProducts.length > 0) {
+        // Check if we have local edits
+        const stored = localStorage.getItem('products');
+        if (stored) {
+          try {
+            const localProducts = JSON.parse(stored);
+            // Merge: keep local products that have been edited
+            const mergedProducts = apiProducts.map(apiProduct => {
+              const localProduct = localProducts.find((p: Product) => p.id === apiProduct.id);
+              // If local version exists and differs, keep local (user edited it)
+              if (localProduct && JSON.stringify(localProduct) !== JSON.stringify(apiProduct)) {
+                return localProduct;
+              }
+              return apiProduct;
+            });
+            
+            // Add any locally created products (IDs not in API)
+            const localOnlyProducts = localProducts.filter((localProduct: Product) => 
+              !apiProducts.find(apiProduct => apiProduct.id === localProduct.id)
+            );
+            
+            const finalProducts = [...mergedProducts, ...localOnlyProducts];
+            localStorage.setItem('products', JSON.stringify(finalProducts));
+            return finalProducts;
+          } catch {
+            // If merge fails, use API data
+            localStorage.setItem('products', JSON.stringify(apiProducts));
+            return apiProducts;
+          }
+        }
+        
+        // No local data, use API data
         localStorage.setItem('products', JSON.stringify(apiProducts));
         return apiProducts;
       }
       return [];
     } catch {
+      // Fallback to localStorage if API fails
+      const stored = localStorage.getItem('products');
+      if (stored) {
+        try {
+          const localProducts = JSON.parse(stored);
+          return localProducts && localProducts.length > 0 ? localProducts : [];
+        } catch {
+          return [];
+        }
+      }
       return [];
     }
   };
