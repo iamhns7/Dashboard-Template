@@ -3,13 +3,20 @@ import type { NavbarProps } from "../interfaces/NavbarInterfaces";
 import { useAuth } from "../utils/hooks/useAuth";
 import { useCart } from "../utils/hooks/useCart";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isOpen }) => {
   const { logout } = useAuth();
   const { getCartItemCount } = useCart();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   
   const cartItemCount = getCartItemCount();
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem('language', lng);
+  };
 
   const handleLogout = () => {
     logout();
@@ -34,6 +41,20 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isOpen }) => {
       </div>
       
       <div className="d-flex align-items-center gap-3">
+        <div className="btn-group">
+          <button 
+            className={`btn btn-sm ${i18n.language === 'en' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => changeLanguage('en')}
+          >
+            EN
+          </button>
+          <button 
+            className={`btn btn-sm ${i18n.language === 'tr' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => changeLanguage('tr')}
+          >
+            TR
+          </button>
+        </div>
         <button 
           className="btn btn-sm btn-outline-primary position-relative" 
           onClick={() => navigate("/carts")}
@@ -50,7 +71,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isOpen }) => {
         </button>
         <button className="btn btn-sm btn-outline-danger" onClick={handleLogout}>
           <i className="ri-logout-box-r-line me-1"></i>
-          Logout
+          {t('navbar.logout')}
         </button>
       </div>
     </nav>

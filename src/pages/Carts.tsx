@@ -5,9 +5,11 @@ import type { Cart } from "../interfaces/CartInterfaces";
 import type { Product } from "../interfaces/ProductInterfaces";
 import { useCart } from "../utils/hooks/useCart";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 const Carts = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const { data: products = [] } = useQuery<Product[], Error>({ queryKey: ['products'], queryFn: getProducts });
   const { data: carts = [], isLoading: loading, error } = useQuery<Cart[], Error>({ queryKey: ['carts'], queryFn: getAllCarts});
   const [showMyCart, setShowMyCart] = useState(true);
@@ -59,7 +61,7 @@ const Carts = () => {
       await queryClient.invalidateQueries({ queryKey: ['carts'] });
     } catch (err) {
       console.error("Error updating cart:", err);
-      setAlertMessage({ type: 'danger', text: '❌ Failed to update cart.' });
+      setAlertMessage({ type: 'danger', text: `❌ ${t('carts.alerts.removeError')}` });
       // revert
       queryClient.setQueryData(['carts'], previous);
     }
@@ -71,16 +73,16 @@ const Carts = () => {
     removeFromCart(productId);
     setAlertMessage({ 
       type: 'success', 
-      text: `✅ ${product?.title || 'Product'} removed from cart!` 
+      text: `✅ ${t('carts.alerts.removeSuccess')}` 
     });
   };
 
   const handleClearMyCart = () => {
-    if (confirm("Are you sure you want to clear your entire cart?")) {
+    if (confirm(t('carts.removeConfirm'))) {
       clearCart();
       setAlertMessage({ 
         type: 'success', 
-        text: '✅ Cart cleared successfully!' 
+        text: `✅ ${t('carts.alerts.removeSuccess')}` 
       });
     }
   };
@@ -88,16 +90,15 @@ const Carts = () => {
   const handleUpdateMyCartQuantity = (productId: number, quantity: number) => {
     updateQuantity(productId, quantity);
     if (quantity === 0) {
-      const product = products.find((p) => p.id === productId);
       setAlertMessage({ 
         type: 'success', 
-        text: `✅ ${product?.title || 'Product'} removed from cart!` 
+        text: `✅ ${t('carts.alerts.removeSuccess')}` 
       });
     }
   };
 
   const handleRemoveProduct = async (cartId: number, productId: number) => {
-    if (!confirm("Are you sure you want to remove this product from your cart?")) return;
+    if (!confirm(t('carts.removeConfirm'))) return;
     const cart = carts.find((c) => c.id === cartId);
     if (!cart) return;
 
@@ -111,13 +112,13 @@ const Carts = () => {
       await queryClient.invalidateQueries({ queryKey: ['carts'] });
     } catch (err) {
       console.error("Error removing product from cart:", err);
-      setAlertMessage({ type: 'danger', text: '❌ Failed to remove product.' });
+      setAlertMessage({ type: 'danger', text: `❌ ${t('carts.alerts.removeError')}` });
       queryClient.setQueryData(['carts'], previous);
     }
   };
 
   const handleDeleteCart = async (cartId: number) => {
-    if (!confirm("Are you sure you want to delete this cart?")) return;
+    if (!confirm(t('carts.removeConfirm'))) return;
     const previous = queryClient.getQueryData<Cart[]>(['carts']);
     const remaining = (previous ?? carts).filter((c) => c.id !== cartId);
     queryClient.setQueryData(['carts'], remaining);
@@ -125,10 +126,10 @@ const Carts = () => {
     try {
       await deleteCart(cartId);
       await queryClient.invalidateQueries({ queryKey: ['carts'] });
-      setAlertMessage({ type: 'success', text: '✅ Cart deleted successfully!' });
+      setAlertMessage({ type: 'success', text: `✅ ${t('carts.alerts.removeSuccess')}` });
     } catch (err) {
       console.error("Error deleting cart:", err);
-      setAlertMessage({ type: 'danger', text: '❌ Failed to delete cart!' });
+      setAlertMessage({ type: 'danger', text: `❌ ${t('carts.alerts.removeError')}` });
       queryClient.setQueryData(['carts'], previous);
     }
   };
@@ -136,7 +137,7 @@ const Carts = () => {
   if (loading) {
     return (
       <div className="container mt-4">
-        <h2>Carts</h2>
+        <h2>{t('carts.title')}</h2>
         <div className="row">
           {Array.from({ length: 4 }).map((_, i) => (
             <div className="col-md-6" key={i}>
@@ -160,21 +161,21 @@ const Carts = () => {
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="mb-0">Shopping Carts</h2>
+        <h2 className="mb-0">{t('carts.title')}</h2>
         <div className="btn-group" role="group">
           <button 
             className={`btn btn-sm ${showMyCart ? 'btn-outline-primary active' : 'btn-outline-primary'}`}
             onClick={() => setShowMyCart(true)}
           >
             <i className="ri-shopping-cart-2-line me-1"></i>
-            My Cart
+            {t('carts.myCart')}
           </button>
           <button 
             className={`btn btn-sm ${!showMyCart ? 'btn-outline-primary active' : 'btn-outline-primary'}`}
             onClick={() => setShowMyCart(false)}
           >
             <i className="ri-list-check me-1"></i>
-            All Carts
+            {t('carts.allCarts')}
           </button>
         </div>
       </div>
@@ -207,13 +208,12 @@ const Carts = () => {
           <div className="card-body">
             <h4 className="card-title mb-4">
               <i className="ri-shopping-cart-2-line me-2"></i>
-              My Shopping Cart
+              {t('carts.title')}
             </h4>
             {!myCart || myCart.products.length === 0 ? (
               <div className="text-center py-5">
                 <i className="ri-shopping-cart-line text-muted" style={{ fontSize: '4rem' }}></i>
-                <h5 className="mt-3">Your cart is empty</h5>
-                <p className="text-muted">Add products from the Products page!</p>
+                <h5 className="mt-3">{t('carts.emptyCart')}</h5>
               </div>
             ) : (
               <>
@@ -223,9 +223,9 @@ const Carts = () => {
                       <tr>
                         <th>Product</th>
                         <th>Image</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Total</th>
+                        <th>{t('carts.price')}</th>
+                        <th>{t('carts.quantity')}</th>
+                        <th>{t('carts.total')}</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -293,7 +293,7 @@ const Carts = () => {
                 </div>
                 <div className="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
                   <h4>
-                    Total: ${myCart.products.reduce((total, item) => {
+                    {t('carts.cartTotal')}: ${myCart.products.reduce((total, item) => {
                       const product = products.find((p) => p.id === item.productId);
                       return total + (product?.price || 0) * item.quantity;
                     }, 0).toFixed(2)}
@@ -304,11 +304,11 @@ const Carts = () => {
                       onClick={handleClearMyCart}
                     >
                       <i className="ri-delete-bin-line me-1"></i>
-                      Clear Cart
+                      {t('carts.remove')}
                     </button>
                     <button className="btn btn-outline-primary">
                       <i className="ri-shopping-bag-line me-1"></i>
-                      Checkout
+                      {t('carts.checkout')}
                     </button>
                   </div>
                 </div>

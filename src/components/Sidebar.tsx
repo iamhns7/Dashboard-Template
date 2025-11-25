@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import logoLight from "../assets/images/logo.png";
 import type { SidebarProps } from "../interfaces/SidebarInterfaces";
+import { useTranslation } from 'react-i18next';
 import "../index.css";
 
 interface SidebarExtendedProps extends SidebarProps {
@@ -10,10 +11,12 @@ interface SidebarExtendedProps extends SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarExtendedProps> = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
+  
   const menuItems = [
-    { title: "Dashboard", icon: "ri-dashboard-line", path: "/dashboard" },
-    { title: "Products", icon: "ri-shopping-bag-3-line", path: "/products" },
-    { title: "Carts", icon: "ri-shopping-cart-2-line", path: "/carts" },
+    { title: t('sidebar.dashboard'), icon: "ri-dashboard-line", path: "/dashboard" },
+    { title: t('sidebar.products'), icon: "ri-shopping-bag-3-line", path: "/products" },
+    { title: t('sidebar.carts'), icon: "ri-shopping-cart-2-line", path: "/carts" },
   ];
 
   return (

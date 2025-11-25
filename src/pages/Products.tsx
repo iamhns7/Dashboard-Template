@@ -9,43 +9,49 @@ import { updateCart } from "../api/CartsApi";
 import type { Product } from "../interfaces/ProductInterfaces";
 import { useCart } from "../utils/hooks/useCart";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 const Products = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   
-  // Fetch products from API, with localStorage fallback
+  // Fetch products - prioritize localStorage to preserve local changes
   const fetchProductsWithFallback = async () => {
+    // Show loading for at least 500ms
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Always check localStorage first
+    const stored = localStorage.getItem('products');
+    
+    // If localStorage has data, use it (preserves local edits)
+    if (stored) {
+      try {
+        const localProducts = JSON.parse(stored);
+        if (localProducts && localProducts.length > 0) {
+          return localProducts;
+        }
+      } catch {
+        // If parse fails, continue to API
+      }
+    }
+    
+    // Only fetch from API if localStorage is empty (first time)
     try {
       const apiProducts = await getProducts();
-      // If API returns data, save to localStorage and return
       if (apiProducts && apiProducts.length > 0) {
         localStorage.setItem('products', JSON.stringify(apiProducts));
         return apiProducts;
       }
-      // If API returns empty, try localStorage
-      const stored = localStorage.getItem('products');
-      return stored ? JSON.parse(stored) : [];
+      return [];
     } catch {
-      // If API fails, use localStorage
-      const stored = localStorage.getItem('products');
-      return stored ? JSON.parse(stored) : [];
+      return [];
     }
   };
   
   const { data: products = [], isLoading: loading } = useQuery<Product[], Error>({
     queryKey: ['products'],
     queryFn: fetchProductsWithFallback,
-    // Use localStorage for a fast initial render but mark it as stale so
-    // the real network request runs on first mount (and will populate the cache).
-    initialData: () => {
-      const stored = localStorage.getItem('products');
-      return stored ? JSON.parse(stored) : [];
-    },
-    // Set updatedAt to 0 so initialData is considered stale and triggers fetch
-    // on the first mount. After fetch, cache will be fresh for `staleTime`.
-    initialDataUpdatedAt: 0,
-    staleTime: 1000 * 60 * 10, // keep fresh for 10 minutes
-   
+    staleTime: Infinity, // Never refetch automatically, localStorage is source of truth
   });
 
   const [newProduct, setNewProduct] = useState<Product>({ title: "", price: 0, image: "" });
@@ -68,13 +74,11 @@ const Products = () => {
     }
   }, [alertMessage]);
 
-  // No manual fetch needed — react-query handles loading and caching.
-
   // ✅ Add new product
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProduct.title.trim() || newProduct.price <= 0) {
-      setAlertMessage({ type: 'danger', text: '❌ Please enter valid title and price!' });
+      setAlertMessage({ type: 'danger', text: `❌ ${t('products.alerts.validationError')}` });
       return;
     }
 
@@ -89,38 +93,38 @@ const Products = () => {
       const createdProduct = await createProduct(payload as Product);
       
       // Update cache AND localStorage
-      const oldData = queryClient.getQueryData(['products']) as Product[] | undefined;
-      const newData = oldData ? [...oldData, createdProduct] : [createdProduct];
+      const oldData = (queryClient.getQueryData(['products']) as Product[]) || [];
+      const newData = [...oldData, createdProduct];
       
       queryClient.setQueryData(['products'], newData);
       localStorage.setItem('products', JSON.stringify(newData));
 
       setNewProduct({ title: "", price: 0, image: "" });
       setShowAddModal(false);
-      setAlertMessage({ type: 'success', text: '✅ Product added successfully!' });
+      setAlertMessage({ type: 'success', text: `✅ ${t('products.alerts.addSuccess')}` });
     } catch (error) {
       console.error("Product add error:", error);
-      setAlertMessage({ type: 'danger', text: '❌ Product could not be added!' });
+      setAlertMessage({ type: 'danger', text: `❌ ${t('products.alerts.addError')}` });
     }
   };
 
   // ✅ Delete product
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
+    if (!confirm(t('products.deleteConfirm'))) return;
     try {
       await deleteProduct(id);
 
       // Update cache AND localStorage
-      const oldData = queryClient.getQueryData(['products']) as Product[] | undefined;
-      const newData = oldData ? oldData.filter(p => p.id !== id) : [];
+      const oldData = (queryClient.getQueryData(['products']) as Product[]) || [];
+      const newData = oldData.filter(p => p.id !== id);
       
       queryClient.setQueryData(['products'], newData);
       localStorage.setItem('products', JSON.stringify(newData));
 
-      setAlertMessage({ type: 'success', text: '✅ Product deleted successfully!' });
+      setAlertMessage({ type: 'success', text: `✅ ${t('products.alerts.deleteSuccess')}` });
     } catch (error) {
       console.error("Product delete error:", error);
-      setAlertMessage({ type: 'danger', text: '❌ Product could not be deleted!' });
+      setAlertMessage({ type: 'danger', text: `❌ ${t('products.alerts.deleteError')}` });
     }
   };
 
@@ -141,10 +145,10 @@ const Products = () => {
       
       // Update local context after API response
       addToCart(product.id, 1);
-      setAlertMessage({ type: 'success', text: `✅ ${product.title} added to cart!` });
+      setAlertMessage({ type: 'success', text: `✅ ${product.title} ${t('products.alerts.cartSuccess')}` });
     } catch (error) {
       console.error("Add to cart error:", error);
-      setAlertMessage({ type: 'danger', text: '❌ Failed to add to cart!' });
+      setAlertMessage({ type: 'danger', text: `❌ ${t('products.alerts.cartError')}` });
     } finally {
       setLoadingCartId(null);
     }
@@ -155,7 +159,7 @@ const Products = () => {
     e.preventDefault();
     if (!editProduct?.id) return;
     if (!editProduct.title.trim() || editProduct.price <= 0) {
-      setAlertMessage({ type: 'danger', text: '❌ Please enter valid title and price!' });
+      setAlertMessage({ type: 'danger', text: `❌ ${t('products.alerts.validationError')}` });
       return;
     }
 
@@ -166,36 +170,36 @@ const Products = () => {
         image: editProduct.image && editProduct.image.trim() ? editProduct.image.trim() : "https://via.placeholder.com/200?text=Product+Image",
       };
 
-      // API'ye gönder ve response'u al
-      const updatedProduct = await updateProduct(editProduct.id, payload as Product);
+      // API'ye gönder
+      await updateProduct(editProduct.id, payload as Product);
       
-      // Cache'i güncelleyin - mergesiz state ve response kullanın
-      const finalProduct = {
-        ...updatedProduct,
-        image: updatedProduct.image || editProduct.image || payload.image,
+      // editProduct'ı local state'ten direkt kullan (API mock döndürebilir)
+      const finalProduct: Product = {
+        ...editProduct,
+        title: payload.title!,
+        price: payload.price!,
+        image: payload.image!,
       };
       
-      // Update cache AND localStorage
-      const oldData = queryClient.getQueryData(['products']) as Product[] | undefined;
-      const newData = oldData 
-        ? oldData.map(p => p.id === editProduct.id ? finalProduct : p)
-        : [finalProduct];
+      // Update cache AND localStorage with actual edited values
+      const oldData = (queryClient.getQueryData(['products']) as Product[]) || [];
+      const newData = oldData.map(p => p.id === editProduct.id ? finalProduct : p);
       
       queryClient.setQueryData(['products'], newData);
       localStorage.setItem('products', JSON.stringify(newData));
 
       setEditProduct(null);
-      setAlertMessage({ type: 'success', text: '✅ The product has been updated successfully!' });
+      setAlertMessage({ type: 'success', text: `✅ ${t('products.alerts.updateSuccess')}` });
     } catch (error) {
       console.error("Product update error:", error);
-      setAlertMessage({ type: 'danger', text: '❌ Product could not be updated!' });
+      setAlertMessage({ type: 'danger', text: `❌ ${t('products.alerts.updateError')}` });
     }
   };
 
   if (loading)
     return (
       <div className="container mt-4">
-        <h2 className="mb-4">Products Management</h2>
+        <h2 className="mb-4">{t('products.title')}</h2>
         <div className="row">
           {Array.from({ length: 8 }).map((_, idx) => (
             <div key={idx} className="col-md-3 mb-4">
@@ -222,13 +226,13 @@ const Products = () => {
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="mb-0">Products Management</h2>
+        <h2 className="mb-0">{t('products.title')}</h2>
         <button 
           className="btn btn-outline-primary"
           onClick={() => setShowAddModal(true)}
         >
           <i className="ri-add-line me-2"></i>
-          Add Product
+          {t('products.addButton')}
         </button>
       </div>
 
@@ -288,12 +292,12 @@ const Products = () => {
                             role="status" 
                             aria-hidden="true"
                           ></span>
-                          Adding...
+                          {t('products.adding')}
                         </>
                       ) : (
                         <>
                           <i className="ri-shopping-cart-line me-1"></i>
-                          Add to Cart
+                          {t('products.addToCart')}
                         </>
                       )}
                     </button>
@@ -303,14 +307,14 @@ const Products = () => {
                         onClick={() => setEditProduct(product)}
                       >
                         <i className="ri-edit-line me-1"></i>
-                        Edit
+                        {t('products.edit')}
                       </button>
                       <button
                         className="btn btn-sm btn-outline-primary flex-fill"
                         onClick={() => handleDelete(product.id!)}
                       >
                         <i className="ri-delete-bin-line me-1"></i>
-                        Delete
+                        {t('products.delete')}
                       </button>
                     </div>
                   </div>
@@ -328,7 +332,7 @@ const Products = () => {
             <div className="modal-content">
               <form onSubmit={handleAddProduct}>
                 <div className="modal-header">
-                  <h5 className="modal-title">Add New Product</h5>
+                  <h5 className="modal-title">{t('products.addModal.title')}</h5>
                   <button
                     type="button"
                     className="btn-close"
@@ -340,25 +344,25 @@ const Products = () => {
                 </div>
                 <div className="modal-body">
                   <div className="mb-3">
-                    <label htmlFor="productTitle" className="form-label">Title</label>
+                    <label htmlFor="productTitle" className="form-label">{t('products.addModal.productTitle')}</label>
                     <input
                       id="productTitle"
                       type="text"
                       className="form-control"
-                      placeholder="Enter product title"
+                      placeholder={t('products.addModal.enterTitle')}
                       value={newProduct.title}
                       onChange={(e) => setNewProduct({ ...newProduct, title: e.target.value })}
                       required
                     />
                   </div>
                   <div className="mb-3">
-                    <label htmlFor="productPrice" className="form-label">Price</label>
+                    <label htmlFor="productPrice" className="form-label">{t('products.addModal.price')}</label>
                     <input
                       id="productPrice"
                       type="number"
                       step="0.01"
                       className="form-control"
-                      placeholder="Enter product price"
+                      placeholder={t('products.addModal.enterPrice')}
                       value={newProduct.price}
                       onChange={(e) =>
                         setNewProduct({ ...newProduct, price: parseFloat(e.target.value || '0') })
@@ -367,7 +371,7 @@ const Products = () => {
                     />
                   </div>
                   <div className="mb-3">
-                    <label className="form-label">Image</label>
+                    <label className="form-label">{t('products.addModal.image')}</label>
                     <div className="d-flex gap-2 align-items-center">
                       <button
                         type="button"
@@ -375,7 +379,7 @@ const Products = () => {
                         onClick={() => addFileRef.current?.click()}
                       >
                         <i className="ri-upload-cloud-line me-2"></i>
-                        Upload Image
+                        {t('products.addModal.uploadImage')}
                       </button>
                       <input
                         ref={addFileRef}
@@ -428,13 +432,13 @@ const Products = () => {
                       {newProduct.image && (
                         <span className="text-success">
                           <i className="ri-check-circle-line me-1"></i>
-                          Image selected
+                          {t('products.addModal.imageSelected')}
                         </span>
                       )}
                     </div>
                     {newProduct.image && (
                       <div className="mt-2">
-                        <small className="text-muted">Preview:</small>
+                        <small className="text-muted">{t('products.addModal.preview')}:</small>
                         <img 
                           src={newProduct.image} 
                           alt="Preview" 
@@ -452,7 +456,7 @@ const Products = () => {
                     disabled={!newProduct.title.trim() || newProduct.price <= 0}
                   >
                     <i className="ri-check-line me-1"></i>
-                    Add Product
+                    {t('products.addModal.addProduct')}
                   </button>
                   <button
                     type="button"
@@ -462,7 +466,7 @@ const Products = () => {
                       setNewProduct({ title: "", price: 0, image: "" });
                     }}
                   >
-                    Cancel
+                    {t('products.addModal.cancel')}
                   </button>
                 </div>
               </form>
@@ -478,7 +482,7 @@ const Products = () => {
             <div className="modal-content">
               <form onSubmit={handleUpdateProduct}>
                 <div className="modal-header">
-                  <h5 className="modal-title">Edit Product</h5>
+                  <h5 className="modal-title">{t('products.editModal.title')}</h5>
                   <button
                     type="button"
                     className="btn-close"
@@ -487,7 +491,7 @@ const Products = () => {
                 </div>
                 <div className="modal-body">
                   <div className="mb-3">
-                    <label htmlFor="editTitle" className="form-label">Title</label>
+                    <label htmlFor="editTitle" className="form-label">{t('products.addModal.productTitle')}</label>
                     <input
                       id="editTitle"
                       type="text"
@@ -500,7 +504,7 @@ const Products = () => {
                     />
                   </div>
                   <div className="mb-3">
-                    <label htmlFor="editPrice" className="form-label">Price</label>
+                    <label htmlFor="editPrice" className="form-label">{t('products.addModal.price')}</label>
                     <input
                       id="editPrice"
                       type="number"
@@ -517,7 +521,7 @@ const Products = () => {
                     />
                   </div>
                   <div className="mb-3">
-                    <label className="form-label">Image</label>
+                    <label className="form-label">{t('products.addModal.image')}</label>
                     <div className="d-flex gap-2 align-items-center">
                       <button
                         type="button"
@@ -525,7 +529,7 @@ const Products = () => {
                         onClick={() => editFileRef.current?.click()}
                       >
                         <i className="ri-upload-cloud-line me-2"></i>
-                        Upload Image
+                        {t('products.addModal.uploadImage')}
                       </button>
                       <input
                         ref={editFileRef}
@@ -578,13 +582,13 @@ const Products = () => {
                       {editProduct.image && (
                         <span className="text-success">
                           <i className="ri-check-circle-line me-1"></i>
-                          Image selected
+                          {t('products.addModal.imageSelected')}
                         </span>
                       )}
                     </div>
                     {editProduct.image && (
                       <div className="mt-2">
-                        <small className="text-muted">Preview:</small>
+                        <small className="text-muted">{t('products.addModal.preview')}:</small>
                         <img 
                           src={editProduct.image} 
                           alt="Preview" 
@@ -601,14 +605,14 @@ const Products = () => {
                     className="btn btn-success"
                     disabled={!editProduct.title.trim() || editProduct.price <= 0}
                   >
-                    Save Changes
+                    {t('products.editModal.saveChanges')}
                   </button>
                   <button
                     type="button"
                     className="btn btn-secondary"
                     onClick={() => setEditProduct(null)}
                   >
-                    Cancel
+                    {t('products.editModal.cancel')}
                   </button>
                 </div>
               </form>

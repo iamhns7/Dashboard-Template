@@ -1,0 +1,77 @@
+{
+  "navbar": {
+    "logout": "Logout"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "carts": "Carts"
+  },
+  "products": {
+    "title": "Products Management",
+    "addButton": "Add Product",
+    "addToCart": "Add to Cart",
+    "adding": "Adding...",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete this product?",
+    "addModal": {
+      "title": "Add New Product",
+      "productTitle": "Title",
+      "price": "Price",
+      "image": "Image",
+      "uploadImage": "Upload Image",
+      "imageSelected": "Image selected",
+      "preview": "Preview",
+      "addProduct": "Add Product",
+      "cancel": "Cancel",
+      "enterTitle": "Enter product title",
+      "enterPrice": "Enter product price"
+    },
+    "editModal": {
+      "title": "Edit Product",
+      "saveChanges": "Save Changes",
+      "cancel": "Cancel"
+    },
+    "alerts": {
+      "addSuccess": "Product added successfully!",
+      "addError": "Product could not be added!",
+      "updateSuccess": "The product has been updated successfully!",
+      "updateError": "Product could not be updated!",
+      "deleteSuccess": "Product deleted successfully!",
+      "deleteError": "Product could not be deleted!",
+      "cartSuccess": "added to cart!",
+      "cartError": "Failed to add to cart!",
+      "validationError": "Please enter valid title and price!"
+    }
+  },
+  "carts": {
+    "title": "Shopping Cart",
+    "myCart": "My Cart",
+    "allCarts": "All Carts",
+    "emptyCart": "Your cart is empty",
+    "quantity": "Quantity",
+    "price": "Price",
+    "total": "Total",
+    "remove": "Remove",
+    "removeConfirm": "Are you sure you want to remove this item from cart?",
+    "cartTotal": "Cart Total",
+    "checkout": "Checkout",
+    "alerts": {
+      "removeSuccess": "Item removed from cart!",
+      "removeError": "Failed to remove item!"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Welcome to your dashboard"
+  },
+  "auth": {
+    "login": "Login",
+    "username": "Username",
+    "password": "Password",
+    "loginButton": "Login",
+    "loginSuccess": "Login successful!",
+    "loginError": "Login failed!"
+  }
+}

@@ -5,6 +5,8 @@ import App from "./App.tsx";
 import "./assets/css/icons.min.css";
 // Use Bootstrap from node_modules instead of the large theme CSS
 import "bootstrap/dist/css/bootstrap.min.css";
+// Import i18n configuration
+import "./i18n.ts";
 
 createRoot(document.getElementById("root")!).render(
   

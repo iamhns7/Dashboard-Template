@@ -1,0 +1,77 @@
+{
+  "navbar": {
+    "logout": "Çıkış Yap"
+  },
+  "sidebar": {
+    "dashboard": "Gösterge Paneli",
+    "products": "Ürünler",
+    "carts": "Sepet"
+  },
+  "products": {
+    "title": "Ürün Yönetimi",
+    "addButton": "Ürün Ekle",
+    "addToCart": "Sepete Ekle",
+    "adding": "Ekleniyor...",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "deleteConfirm": "Bu ürünü silmek istediğinizden emin misiniz?",
+    "addModal": {
+      "title": "Yeni Ürün Ekle",
+      "productTitle": "Başlık",
+      "price": "Fiyat",
+      "image": "Görsel",
+      "uploadImage": "Görsel Yükle",
+      "imageSelected": "Görsel seçildi",
+      "preview": "Önizleme",
+      "addProduct": "Ürün Ekle",
+      "cancel": "İptal",
+      "enterTitle": "Ürün başlığını girin",
+      "enterPrice": "Ürün fiyatını girin"
+    },
+    "editModal": {
+      "title": "Ürün Düzenle",
+      "saveChanges": "Değişiklikleri Kaydet",
+      "cancel": "İptal"
+    },
+    "alerts": {
+      "addSuccess": "Ürün başarıyla eklendi!",
+      "addError": "Ürün eklenemedi!",
+      "updateSuccess": "Ürün başarıyla güncellendi!",
+      "updateError": "Ürün güncellenemedi!",
+      "deleteSuccess": "Ürün başarıyla silindi!",
+      "deleteError": "Ürün silinemedi!",
+      "cartSuccess": "sepete eklendi!",
+      "cartError": "Sepete eklenemedi!",
+      "validationError": "Lütfen geçerli başlık ve fiyat girin!"
+    }
+  },
+  "carts": {
+    "title": "Alışveriş Sepeti",
+    "myCart": "Sepetim",
+    "allCarts": "Tüm Sepetler",
+    "emptyCart": "Sepetiniz boş",
+    "quantity": "Miktar",
+    "price": "Fiyat",
+    "total": "Toplam",
+    "remove": "Kaldır",
+    "removeConfirm": "Bu ürünü sepetten çıkarmak istediğinizden emin misiniz?",
+    "cartTotal": "Sepet Toplamı",
+    "checkout": "Ödeme Yap",
+    "alerts": {
+      "removeSuccess": "Ürün sepetten çıkarıldı!",
+      "removeError": "Ürün çıkarılamadı!"
+    }
+  },
+  "dashboard": {
+    "title": "Gösterge Paneli",
+    "description": "Gösterge panelinize hoş geldiniz"
+  },
+  "auth": {
+    "login": "Giriş Yap",
+    "username": "Kullanıcı Adı",
+    "password": "Şifre",
+    "loginButton": "Giriş Yap",
+    "loginSuccess": "Giriş başarılı!",
+    "loginError": "Giriş başarısız!"
+  }
+}
