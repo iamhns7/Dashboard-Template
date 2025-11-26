@@ -4,7 +4,7 @@ import Dashboard from "../../pages/Dashboard";
 import Products from "../../pages/Products";
 import Carts from "../../pages/Carts";
 import Auth from "../../pages/Auth";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 
 const AppNavigation = () => {
   const { isAuthenticated } = useAuth();

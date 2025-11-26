@@ -1,7 +1,7 @@
 import { BrowserRouter as Router } from "react-router-dom";
 import AppNavigation from "./utils/navigation/AppNavigation";
-import { AuthProvider } from "./utils/context/AuthContext";
-import { CartProvider } from "./utils/context/CartContext";
+import { AuthProvider } from "./context/AuthContext";
+import { CartProvider } from "./context/CartContext";
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './utils/query/client';
 

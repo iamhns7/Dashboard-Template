@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../index.css";
 import useAuthValidation from "../utils/validation/Validation";
-import { useAuth } from "../utils/hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 import { useTranslation } from 'react-i18next';
 
 const Auth = () => {
@@ -18,11 +18,14 @@ const Auth = () => {
     i18n.changeLanguage(lng);
     localStorage.setItem('language', lng);
   };
+  
 
   const handleSubmit = (e: React.FormEvent) => {
+    console.log({values});
     e.preventDefault();
     setSubmitError("");
     const ok = validateAll();
+
     if (!ok) return;
 
     // gerçek projede burada server-side auth çağrısı olmalı

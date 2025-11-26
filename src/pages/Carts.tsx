@@ -3,7 +3,7 @@ import { getAllCarts, updateCart, deleteCart } from "../api/CartsApi";
 import { getProducts } from "../api/ProductsApi";
 import type { Cart } from "../interfaces/CartInterfaces";
 import type { Product } from "../interfaces/ProductInterfaces";
-import { useCart } from "../utils/hooks/useCart";
+import { useCart } from "../hooks/useCart";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 

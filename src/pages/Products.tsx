@@ -7,7 +7,7 @@ import {
 } from "../api/ProductsApi";
 import { updateCart } from "../api/CartsApi";
 import type { Product } from "../interfaces/ProductInterfaces";
-import { useCart } from "../utils/hooks/useCart";
+import { useCart } from "../hooks/useCart";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
@@ -81,7 +81,7 @@ const Products = () => {
     staleTime: Infinity, // Never refetch automatically, localStorage is source of truth
   });
 
-  const [newProduct, setNewProduct] = useState<Product>({ title: "", price: 0, image: "" });
+  const [newProduct, setNewProduct] = useState<Product>({ id: 0, title: "", price: 0, image: "" });
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [alertMessage, setAlertMessage] = useState<{ type: 'success' | 'danger', text: string } | null>(null);
@@ -126,7 +126,7 @@ const Products = () => {
       queryClient.setQueryData(['products'], newData);
       localStorage.setItem('products', JSON.stringify(newData));
 
-      setNewProduct({ title: "", price: 0, image: "" });
+      setNewProduct({ id: 0, title: "", price: 0, image: "" });
       setShowAddModal(false);
       setAlertMessage({ type: 'success', text: `✅ ${t('products.alerts.addSuccess')}` });
     } catch (error) {
@@ -365,7 +365,7 @@ const Products = () => {
                     className="btn-close"
                     onClick={() => {
                       setShowAddModal(false);
-                      setNewProduct({ title: "", price: 0, image: "" });
+                      setNewProduct({ id: 0, title: "", price: 0, image: "" });
                     }}
                   ></button>
                 </div>
@@ -490,7 +490,7 @@ const Products = () => {
                     className="btn btn-secondary"
                     onClick={() => {
                       setShowAddModal(false);
-                      setNewProduct({ title: "", price: 0, image: "" });
+                      setNewProduct({ id: 0, title: "", price: 0, image: "" });
                     }}
                   >
                     {t('products.addModal.cancel')}
